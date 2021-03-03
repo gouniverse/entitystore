@@ -9,54 +9,8 @@ import (
 	"time"
 
 	"github.com/gouniverse/uid"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
-
-// Store defines an entity store
-type Store struct {
-	entityTableName    string
-	attributeTableName string
-	db                 *gorm.DB
-}
-
-// NewStore creates a new entity store
-func NewStore(driverName string, dsn string, entityTableName string, attributeTableName string) *Store {
-	log.Println("New entity store: " + dsn)
-
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	db.Table(entityTableName).AutoMigrate(&entity{})
-	db.Table(attributeTableName).AutoMigrate(&attribute{})
-
-	st := &Store{
-		db:                 db,
-		entityTableName:    entityTableName,
-		attributeTableName: attributeTableName,
-	}
-
-	return st
-}
-
-// NewStoreGorm creates a new entity store
-func NewStoreGorm(db *gorm.DB, entityTableName string, attributeTableName string) *Store {
-	log.Println("New entity store: " + db.Name())
-
-	db.Table(entityTableName).AutoMigrate(&entity{})
-	db.Table(attributeTableName).AutoMigrate(&attribute{})
-
-	st := &Store{
-		db:                 db,
-		entityTableName:    entityTableName,
-		attributeTableName: attributeTableName,
-	}
-
-	return st
-}
 
 // Entity type
 type entity struct {
