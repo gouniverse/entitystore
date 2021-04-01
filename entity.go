@@ -192,6 +192,28 @@ func (st *Store) EntityDelete(entityID string) bool {
 	return false
 }
 
+// EntityFindByID finds an entity by ID
+func (st *Store) EntityFindByID(entityID string) *Entity {
+	if entityID == "" {
+		return nil
+	}
+
+	entity := &Entity{}
+
+	resultEntity := st.db.Table(st.entityTableName).First(&entity, "id=?", entityID)
+
+	if resultEntity.Error != nil {
+		if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		log.Panic(resultEntity.Error)
+	}
+
+	// DEBUG: log.Println(entity)
+
+	return entity
+}
+
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *attribute {
 	attr := &attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
