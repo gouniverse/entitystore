@@ -108,6 +108,11 @@ func (e *entity) GetAttribute(attributeKey string) *attribute {
 	return attr
 }
 
+// SetAllAny upserts the attributes
+func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
+	return e.st.AttributesSet(e.ID, attributes)
+}
+
 // SetString sets an attribute with string value
 func (e *entity) SetAny(attributeKey string, attributeValue interface{}) bool {
 	bytes, err := json.Marshal(attributeValue)
