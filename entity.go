@@ -12,6 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	// EntityStatusActive entity "active" status
+	EntityStatusActive = "active"
+	// EntityStatusInactive entity "inactive" status
+	EntityStatusInactive = "inactive"
+)
+
 // Entity type
 type entity struct {
 	ID     string `gorm:"type:varchar(40);column:id;primary_key;"`
@@ -150,7 +157,7 @@ func (st *Store) EntityCreate(entityType string) *entity {
 }
 
 // EntityCreateWithAttributes func
-func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity {
+func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *entity {
 	// Note the use of tx as the database handle once you are within a transaction
 	tx := st.db.Begin()
 	defer func() {
@@ -165,7 +172,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	//return tx.Commit().Error
 
-	entity := &Entity{Type: entityType, Status: EntityStatusActive}
+	entity := &entity{Type: entityType, Status: EntityStatusActive, st: st}
 
 	dbResult := tx.Table(st.entityTableName).Create(&entity)
 
@@ -176,8 +183,8 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	//entityAttributes := make([]EntityAttribute, 0)
 	for k, v := range attributes {
-		ea := EntityAttribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
-		ea.SetValue(v)
+		ea := attribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
+		ea.SetAny(v)
 
 		dbResult2 := tx.Table(st.attributeTableName).Create(&ea)
 		if dbResult2.Error != nil {
@@ -240,12 +247,12 @@ func (st *Store) EntityDelete(entityID string) bool {
 }
 
 // EntityFindByID finds an entity by ID
-func (st *Store) EntityFindByID(entityID string) *Entity {
+func (st *Store) EntityFindByID(entityID string) *entity {
 	if entityID == "" {
 		return nil
 	}
 
-	entity := &Entity{}
+	entity := &entity{}
 
 	resultEntity := st.db.Table(st.entityTableName).First(&entity, "id=?", entityID)
 
