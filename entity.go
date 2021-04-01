@@ -384,6 +384,53 @@ func (st *Store) AttributeSet(entityID string, attributeKey string, attributeVal
 	return true
 }
 
+// AttributesSet upserts and entity attribute
+func (st *Store) AttributesSet(entityID string, attributes map[string]interface{}) bool {
+	tx := st.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return false
+	}
+
+	for k, v := range attributes {
+		entityAttribute := st.AttributeFind(entityID, k)
+
+		if entityAttribute == nil {
+			entityAttribute = &attribute{EntityID: entityID, AttributeKey: k}
+			entityAttribute.SetValue(v)
+
+			dbResult := tx.Create(&entityAttribute)
+			if dbResult.Error != nil {
+				tx.Rollback()
+				return false
+			}
+
+		}
+
+		entityAttribute.SetValue(v)
+		dbResult := tx.Save(entityAttribute)
+		if dbResult.Error != nil {
+			return false
+		}
+	}
+
+	err := tx.Commit().Error
+
+	if err != nil {
+		tx.Rollback()
+		return false
+	}
+
+	return true
+
+}
+
+
 // Attribute type
 type attribute struct {
 	ID             string     `gorm:"type:varchar(40);column:id;primary_key;"`
