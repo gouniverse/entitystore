@@ -1,4 +1,4 @@
-module entitystore
+module github.com/gouniverse/entitystore
 
 go 1.16
 
