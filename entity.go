@@ -274,11 +274,11 @@ func (st *Store) EntityFindByID(entityID string) *entity {
 }
 
 // EntityFindByAttribute finds an entity by attribute
-func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity {
+func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *entity {
 	attr := &attribute{}
 
 	subQuery := st.db.Table(st.entityTableName).Model(&entity{}).Select("id").Where("type = ?", entityType)
-	result := st.db.Table(st.attributeTableName).First(&attribute, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
+	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
