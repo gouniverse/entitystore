@@ -2,7 +2,6 @@ package entitystore
 
 import (
 	//"log"
-	"log"
 	"testing"
 	//"database/sql"
 	_ "github.com/mattn/go-sqlite3"
