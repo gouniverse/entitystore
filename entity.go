@@ -109,7 +109,7 @@ func (e *entity) GetAttribute(attributeKey string) *attribute {
 }
 
 // SetAllAny upserts the attributes
-func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
+func (e *entity) SetAllAny(attributes map[string]interface{}) bool {
 	return e.st.AttributesSet(e.ID, attributes)
 }
 
