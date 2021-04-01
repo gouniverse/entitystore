@@ -290,9 +290,9 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entityAttribute)
 
-	entity := &entity{}
+	ent := &entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).First(&entity, "id=?", entityAttribute.EntityID)
+	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", entityAttribute.EntityID)
 
 	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
 		return nil
@@ -304,7 +304,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entity)
 
-	return entity
+	return ent
 }
 
 // EntityList lists entities
