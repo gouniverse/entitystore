@@ -280,6 +280,41 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 	return entityList
 }
 
+// EntityListByAttribute finds an entity by attribute
+func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []entity {
+	//entityAttributes := []EntityAttribute{}
+	var entityIDs []string
+
+	subQuery := st.db.Table(st.entityTableName).Model(&entity{}).Select("id").Where("type = ?", entityType)
+	result := st.db.Table(st.attributeTableName).Model(&attribute{}).Select("entity_id").Find(&entityIDs, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	if result.Error != nil {
+		log.Panic(result.Error)
+	}
+
+	// DEBUG: log.Println(result)
+
+	entities := []entity{}
+
+	resultEntity := st.db.Table(st.entityTableName).Where("id IN (?)", entityIDs).Find(&entities)
+
+	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	if resultEntity.Error != nil {
+		log.Panic(resultEntity.Error)
+	}
+
+	// DEBUG: log.Println(entity)
+
+	return entities
+}
+
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *attribute {
 	attr := &attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
