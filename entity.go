@@ -129,6 +129,13 @@ func (e *entity) SetString(attributeKey string, attributeValue string) bool {
 	return e.st.AttributeSet(e.ID, attributeKey, attributeValue)
 }
 
+// EntityCount counts entities
+func (st *Store) EntityCount(entityType string) uint64 {
+	var count int64
+	st.db.Table(st.entityTableName).Where("type=?", entityType).Count(&count)
+	return uint64(count)
+}
+
 // EntityCreate creates a new entity
 func (st *Store) EntityCreate(entityType string) *entity {
 	entity := &entity{Type: entityType, Status: "active", st: st}
