@@ -398,11 +398,11 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 	}
 
 	for k, v := range attributes {
-		entityAttribute := st.AttributeFind(entityID, k)
+		attr := st.AttributeFind(entityID, k)
 
-		if entityAttribute == nil {
-			entityAttribute = &attribute{EntityID: entityID, AttributeKey: k}
-			entityAttribute.SetValue(v)
+		if attr == nil {
+			attr = &attribute{EntityID: entityID, AttributeKey: k}
+			attr.SetAny(v)
 
 			dbResult := tx.Create(&entityAttribute)
 			if dbResult.Error != nil {
@@ -412,8 +412,8 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 		}
 
-		entityAttribute.SetValue(v)
-		dbResult := tx.Save(entityAttribute)
+		attr.SetAny(v)
+		dbResult := tx.Table(st.attributeTableName).Save(attr)
 		if dbResult.Error != nil {
 			return false
 		}
