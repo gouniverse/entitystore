@@ -273,6 +273,40 @@ func (st *Store) EntityFindByID(entityID string) *entity {
 	return entity
 }
 
+// EntityFindByAttribute finds an entity by attribute
+func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity {
+	attr := &attribute{}
+
+	subQuery := st.db.Table(st.entityTableName).Model(&entity{}).Select("id").Where("type = ?", entityType)
+	result := st.db.Table(st.attributeTableName).First(&attribute, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	if result.Error != nil {
+		log.Panic(result.Error)
+	}
+
+	// DEBUG: log.Println(entityAttribute)
+
+	entity := &entity{}
+
+	resultEntity := st.db.Table(st.entityTableName).First(&entity, "id=?", entityAttribute.EntityID)
+
+	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	if resultEntity.Error != nil {
+		log.Panic(resultEntity.Error)
+	}
+
+	// DEBUG: log.Println(entity)
+
+	return entity
+}
+
 // EntityList lists entities
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []entity {
 	entityList := []entity{}
