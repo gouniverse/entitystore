@@ -292,7 +292,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 
 	ent := &entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", entityAttribute.EntityID)
+	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", attr.EntityID)
 
 	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
 		return nil
