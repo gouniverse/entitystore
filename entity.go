@@ -404,7 +404,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 			attr = &attribute{EntityID: entityID, AttributeKey: k}
 			attr.SetAny(v)
 
-			dbResult := tx.Create(&entityAttribute)
+			dbResult := tx.Table(st.attributeTableName).Create(&attr)
 			if dbResult.Error != nil {
 				tx.Rollback()
 				return false
