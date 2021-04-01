@@ -149,6 +149,53 @@ func (st *Store) EntityCreate(entityType string) *entity {
 	return entity
 }
 
+// EntityCreateWithAttributes func
+func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity {
+	// Note the use of tx as the database handle once you are within a transaction
+	tx := st.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return nil
+	}
+
+	//return tx.Commit().Error
+
+	entity := &Entity{Type: entityType, Status: EntityStatusActive}
+
+	dbResult := tx.Table(st.entityTableName).Create(&entity)
+
+	if dbResult.Error != nil {
+		tx.Rollback()
+		return nil
+	}
+
+	//entityAttributes := make([]EntityAttribute, 0)
+	for k, v := range attributes {
+		ea := EntityAttribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
+		ea.SetValue(v)
+
+		dbResult2 := tx.Table(st.attributeTableName).Create(&ea)
+		if dbResult2.Error != nil {
+			tx.Rollback()
+			return nil
+		}
+	}
+
+	err := tx.Commit().Error
+
+	if err != nil {
+		tx.Rollback()
+		return nil
+	}
+
+	return entity
+}
+
 // EntityDelete deletes an entity and all attributes
 func (st *Store) EntityDelete(entityID string) bool {
 	if entityID == "" {
