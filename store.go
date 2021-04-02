@@ -218,7 +218,7 @@ func (st *Store) EntityFindByID(entityID string) *Entity {
 
 	// DEBUG: log.Println(entity)
 	
-	entity.st = str;
+	ent.st = st // Add store reference
 
 	return entity
 }
@@ -254,7 +254,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entity)
 	
-	ent.st = str;
+	ent.st = st // Add store reference
 
 	return ent
 }
