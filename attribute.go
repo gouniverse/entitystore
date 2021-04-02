@@ -10,7 +10,7 @@ import (
 )
 
 // Attribute type
-type attribute struct {
+type Attribute struct {
 	ID             string     `gorm:"type:varchar(40);column:id;primary_key;"`
 	EntityID       string     `gorm:"type:varchar(40);column:entity_id;"`
 	AttributeKey   string     `gorm:"type:varchar(255);column:attribute_key;DEFAULT NULL;"`
@@ -21,42 +21,42 @@ type attribute struct {
 }
 
 // BeforeCreate adds UID to model
-func (a *attribute) BeforeCreate(tx *gorm.DB) (err error) {
+func (a *Attribute) BeforeCreate(tx *gorm.DB) (err error) {
 	uuid := uid.HumanUid()
 	a.ID = uuid
 	return nil
 }
 
-// GetValue de-serializes the values
-func (a *attribute) GetAny() interface{} {
+// GetInterface de-serializes the values
+func (a *Attribute) GetInterface() interface{} {
 	var value interface{}
 	err := json.Unmarshal([]byte(a.AttributeValue), &value)
 
 	if err != nil {
-		panic("JSOB error unmarshaliibg attribute" + err.Error())
+		panic("JSOB error unmarshaliibg Attribute" + err.Error())
 	}
 
 	return value
 }
 
-// GetString returns the value as string
-func (a *attribute) GetInt() (int, error) {
+// GetInt returns the value as int
+func (a *Attribute) GetInt() (int, error) {
 	return strconv.Atoi(a.AttributeValue)
 }
 
-// GetFloat returns the value as string
-func (a *attribute) GetFloat() (float32, error) {
+// GetFloat returns the value as float
+func (a *Attribute) GetFloat() (float32, error) {
 	f64Value, err := strconv.ParseFloat(a.AttributeValue, 32)
 	return float32(f64Value), err
 }
 
 // GetString returns the value as string
-func (a *attribute) GetString() string {
+func (a *Attribute) GetString() string {
 	return a.AttributeValue
 }
 
-// SetAny serializes the values
-func (a *attribute) SetAny(value interface{}) bool {
+// SetInterface serializes the values
+func (a *Attribute) SetInterface(value interface{}) bool {
 	bytes, err := json.Marshal(value)
 
 	if err != nil {
@@ -69,7 +69,7 @@ func (a *attribute) SetAny(value interface{}) bool {
 }
 
 // SetString serializes the values
-func (a *attribute) SetString(value string) bool {
+func (a *Attribute) SetString(value string) bool {
 	a.AttributeValue = value
 
 	return true
