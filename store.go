@@ -269,7 +269,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 		return nil
 	}
 	
-	for k, v := range entityList {
+	for k, _ := range entityList {
 		entityList[k].st = st
 	}
 
@@ -308,7 +308,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entity)
 	
-	for k, v := range entityList {
+	for k, _ := range entityList {
 		entityList[k].st = st
 	}
 
