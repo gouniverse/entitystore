@@ -58,9 +58,11 @@ These methods may be subject to change
 
 ### Attribute Methods
 
-- GetInterface() interface{} - de-serializes the values
-- GetInt() (int, error) - returns the value as int
-- GetFloat() (float32, error) - returns the value as float
+- GetInterface() interface{} - de-serializes the JSON value
+- GetInt() (int64, error) - returns the value as int
+- GetFloat() (float64, error) - returns the value as float
 - GetString() string - returns the value as string
-- SetInterface(value interface{}) bool - serializes the values
-- SetString(value string) bool - saves a string velue
+- SetFloat(value float64) bool - saves a float value
+- Setint(value int64) bool - saves a int value
+- SetInterface(value interface{}) bool - serializes the interface to JSON string and saves it
+- SetString(value string) bool - saves a string value
