@@ -268,6 +268,10 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
+	
+	for k, v := range entityList {
+		entityList[k].st = st
+	}
 
 	return entityList
 }
@@ -290,9 +294,9 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(result)
 
-	entities := []Entity{}
+	entityList := []Entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).Where("id IN (?)", entityIDs).Find(&entities)
+	resultEntity := st.db.Table(st.entityTableName).Where("id IN (?)", entityIDs).Find(&entityList)
 
 	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
 		return nil
@@ -303,8 +307,12 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	}
 
 	// DEBUG: log.Println(entity)
+	
+	for k, v := range entityList {
+		entityList[k].st = st
+	}
 
-	return entities
+	return entityList
 }
 
 // AttributeCreate creates a new attribute
