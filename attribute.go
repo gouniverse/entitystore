@@ -2,9 +2,6 @@ package entitystore
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
