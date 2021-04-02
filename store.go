@@ -217,6 +217,8 @@ func (st *Store) EntityFindByID(entityID string) *Entity {
 	}
 
 	// DEBUG: log.Println(entity)
+	
+	entity.st = str;
 
 	return entity
 }
@@ -251,6 +253,8 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 	}
 
 	// DEBUG: log.Println(entity)
+	
+	ent.st = str;
 
 	return ent
 }
@@ -258,6 +262,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 // EntityList lists entities
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity {
 	entityList := []Entity{}
+	
 	result := st.db.Table(st.entityTableName).Where("type=?", entityType).Order(orderBy + " " + sort).Offset(int(offset)).Limit(int(perPage)).Find(&entityList)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
