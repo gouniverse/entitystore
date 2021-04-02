@@ -55,3 +55,12 @@ These methods may be subject to change
 - SetInt(attributeKey string, attributeValue int) bool - sets an attribute with int value
 - SetInterface(attributeKey string, attributeValue interface{}) bool - sets an attribute with string value
 - SetString(attributeKey string, attributeValue string) bool - sets an attribute with string value
+
+### Attribute Methods
+
+- GetInterface() interface{} - de-serializes the values
+- GetInt() (int, error) - returns the value as int
+- GetFloat() (float32, error) - returns the value as float
+- GetString() string - returns the value as string
+- SetInterface(value interface{}) bool - serializes the values
+- SetString(value string) bool - saves a string velue
