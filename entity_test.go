@@ -66,7 +66,7 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 		t.Fatalf("Attribute NOT FOUND")
 	}
 
-	if store.AttributeFind(entity.ID,"name").GetAny() != "Hello world"{
+	if store.AttributeFind(entity.ID,"name").GetInterface() != "Hello world"{
 		t.Fatalf("Entity attribute mismatch")
 	}
 }
