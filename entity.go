@@ -1,9 +1,9 @@
 package entitystore
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"errors"
-	"fmt"
+	//"fmt"
 	"log"
 	//"strconv"
 	"time"
@@ -69,7 +69,7 @@ func (e *Entity) GetInt(attributeKey string, defaultValue int) (int, error) {
 }
 
 // GetFloat the value of the attribute as float or the default value if it does not exist
-func (e *Entity) GetFloat(attributeKey string, defaultValue float32) (float32, error) {
+func (e *Entity) GetFloat(attributeKey string, defaultValue float64) (float64, error) {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
@@ -115,28 +115,20 @@ func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
 
 // SetInterface sets an attribute with string value
 func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) bool {
-	bytes, err := json.Marshal(attributeValue)
-
-	if err != nil {
-		return false
-	}
-
-	strValue := string(bytes)
-
-	return e.st.AttributeSet(e.ID, attributeKey, strValue)
+	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
 }
 
 // SetFloat sets an attribute with float value
-func (e *Entity) SetFloat(attributeKey string, attributeValue float32) bool {
-	return e.st.AttributeSet(e.ID, attributeKey, fmt.Sprint(attributeValue))
+func (e *Entity) SetFloat(attributeKey string, attributeValue float64) bool {
+	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
 }
 
 // SetInt sets an attribute with int value
-func (e *Entity) SetInt(attributeKey string, attributeValue int) bool {
-	return e.st.AttributeSet(e.ID, attributeKey, fmt.Sprint(attributeValue))
+func (e *Entity) SetInt(attributeKey string, attributeValue int64) bool {
+	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
 }
 
 // SetString sets an attribute with string value
 func (e *Entity) SetString(attributeKey string, attributeValue string) bool {
-	return e.st.AttributeSet(e.ID, attributeKey, attributeValue)
+	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
 }
