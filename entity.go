@@ -20,7 +20,7 @@ const (
 )
 
 // Entity type
-type entity struct {
+type Entity struct {
 	ID     string `gorm:"type:varchar(40);column:id;primary_key;"`
 	Status string `gorm:"type:varchar(10);column:status;"`
 	Type   string `gorm:"type:varchar(40);column:type;"`
@@ -30,35 +30,35 @@ type entity struct {
 	UpdatedAt time.Time  `gorm:"type:datetime;column:updated_at;DEFAULT NULL;"`
 	DeletedAt *time.Time `gorm:"type:datetime;column:deleted_at;DEFAULT NULL;"`
 
-	attributes []attribute `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	attributes []Attribute `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	st         *Store      `gorm:-`
 }
 
 // BeforeCreate adds UID to model
-func (e *entity) BeforeCreate(tx *gorm.DB) (err error) {
+func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
 	uuid := uid.HumanUid()
 	e.ID = uuid
 	return nil
 }
 
-// Deletes the entity
-func (e *entity) Delete() bool {
+// Delete deletes the entity
+func (e *Entity) Delete() bool {
 	return e.st.EntityDelete(e.ID)
 }
 
 // GetAny the value of the attribute as interface{} or the default value if it does not exist
-func (e *entity) GetAny(attributeKey string, defaultValue interface{}) interface{} {
+func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) interface{} {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
 		return defaultValue
 	}
 
-	return attr.GetAny()
+	return attr.GetInterface()
 }
 
 // GetInt the value of the attribute as string or the default value if it does not exist
-func (e *entity) GetInt(attributeKey string, defaultValue int) (int, error) {
+func (e *Entity) GetInt(attributeKey string, defaultValue int) (int, error) {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
@@ -69,7 +69,7 @@ func (e *entity) GetInt(attributeKey string, defaultValue int) (int, error) {
 }
 
 // GetFloat the value of the attribute as float or the default value if it does not exist
-func (e *entity) GetFloat(attributeKey string, defaultValue float32) (float32, error) {
+func (e *Entity) GetFloat(attributeKey string, defaultValue float32) (float32, error) {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
@@ -80,7 +80,7 @@ func (e *entity) GetFloat(attributeKey string, defaultValue float32) (float32, e
 }
 
 // GetString the value of the attribute as string or the default value if it does not exist
-func (e *entity) GetString(attributeKey string, defaultValue string) string {
+func (e *Entity) GetString(attributeKey string, defaultValue string) string {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
@@ -91,8 +91,8 @@ func (e *entity) GetString(attributeKey string, defaultValue string) string {
 }
 
 // GetAttribute the name of the User table
-func (e *entity) GetAttribute(attributeKey string) *attribute {
-	attr := &attribute{}
+func (e *Entity) GetAttribute(attributeKey string) *Attribute {
+	attr := &Attribute{}
 
 	result := e.st.db.Table(e.st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", e.ID, attributeKey)
 
@@ -109,12 +109,12 @@ func (e *entity) GetAttribute(attributeKey string) *attribute {
 }
 
 // SetAllAny upserts the attributes
-func (e *entity) SetAllAny(attributes map[string]interface{}) bool {
+func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
 	return e.st.AttributesSet(e.ID, attributes)
 }
 
-// SetString sets an attribute with string value
-func (e *entity) SetAny(attributeKey string, attributeValue interface{}) bool {
+// SetInterface sets an attribute with string value
+func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) bool {
 	bytes, err := json.Marshal(attributeValue)
 
 	if err != nil {
@@ -126,18 +126,18 @@ func (e *entity) SetAny(attributeKey string, attributeValue interface{}) bool {
 	return e.st.AttributeSet(e.ID, attributeKey, strValue)
 }
 
-// SetString sets an attribute with string value
-func (e *entity) SetFloat(attributeKey string, attributeValue float32) bool {
+// SetFloat sets an attribute with float value
+func (e *Entity) SetFloat(attributeKey string, attributeValue float32) bool {
+	return e.st.AttributeSet(e.ID, attributeKey, fmt.Sprint(attributeValue))
+}
+
+// SetInt sets an attribute with int value
+func (e *Entity) SetInt(attributeKey string, attributeValue int) bool {
 	return e.st.AttributeSet(e.ID, attributeKey, fmt.Sprint(attributeValue))
 }
 
 // SetString sets an attribute with string value
-func (e *entity) SetInt(attributeKey string, attributeValue int) bool {
-	return e.st.AttributeSet(e.ID, attributeKey, fmt.Sprint(attributeValue))
-}
-
-// SetString sets an attribute with string value
-func (e *entity) SetString(attributeKey string, attributeValue string) bool {
+func (e *Entity) SetString(attributeKey string, attributeValue string) bool {
 	return e.st.AttributeSet(e.ID, attributeKey, attributeValue)
 }
 
@@ -149,8 +149,8 @@ func (st *Store) EntityCount(entityType string) uint64 {
 }
 
 // EntityCreate creates a new entity
-func (st *Store) EntityCreate(entityType string) *entity {
-	entity := &entity{Type: entityType, Status: "active", st: st}
+func (st *Store) EntityCreate(entityType string) *Entity {
+	entity := &Entity{Type: entityType, Status: "active", st: st}
 
 	dbResult := st.db.Table(st.entityTableName).Create(&entity)
 
@@ -162,7 +162,7 @@ func (st *Store) EntityCreate(entityType string) *entity {
 }
 
 // EntityCreateWithAttributes func
-func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *entity {
+func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity {
 	// Note the use of tx as the database handle once you are within a transaction
 	tx := st.db.Begin()
 	defer func() {
@@ -177,7 +177,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	//return tx.Commit().Error
 
-	entity := &entity{Type: entityType, Status: EntityStatusActive, st: st}
+	entity := &Entity{Type: entityType, Status: EntityStatusActive, st: st}
 
 	dbResult := tx.Table(st.entityTableName).Create(&entity)
 
@@ -188,8 +188,8 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	//entityAttributes := make([]EntityAttribute, 0)
 	for k, v := range attributes {
-		ea := attribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
-		ea.SetAny(v)
+		ea := Attribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
+		ea.SetInterface(v)
 
 		dbResult2 := tx.Table(st.attributeTableName).Create(&ea)
 		if dbResult2.Error != nil {
@@ -228,13 +228,13 @@ func (st *Store) EntityDelete(entityID string) bool {
 		return false
 	}
 
-	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&attribute{}).Error; err != nil {
+	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Delete(&entity{}).Error; err != nil {
+	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Delete(&Entity{}).Error; err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
@@ -252,12 +252,12 @@ func (st *Store) EntityDelete(entityID string) bool {
 }
 
 // EntityFindByID finds an entity by ID
-func (st *Store) EntityFindByID(entityID string) *entity {
+func (st *Store) EntityFindByID(entityID string) *Entity {
 	if entityID == "" {
 		return nil
 	}
 
-	entity := &entity{}
+	entity := &Entity{}
 
 	resultEntity := st.db.Table(st.entityTableName).First(&entity, "id=?", entityID)
 
@@ -274,10 +274,10 @@ func (st *Store) EntityFindByID(entityID string) *entity {
 }
 
 // EntityFindByAttribute finds an entity by attribute
-func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *entity {
-	attr := &attribute{}
+func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity {
+	attr := &Attribute{}
 
-	subQuery := st.db.Table(st.entityTableName).Model(&entity{}).Select("id").Where("type = ?", entityType)
+	subQuery := st.db.Table(st.entityTableName).Model(&Entity{}).Select("id").Where("type = ?", entityType)
 	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -290,7 +290,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entityAttribute)
 
-	ent := &entity{}
+	ent := &Entity{}
 
 	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", attr.EntityID)
 
@@ -308,8 +308,8 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 }
 
 // EntityList lists entities
-func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []entity {
-	entityList := []entity{}
+func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity {
+	entityList := []Entity{}
 	result := st.db.Table(st.entityTableName).Where("type=?", entityType).Order(orderBy + " " + sort).Offset(int(offset)).Limit(int(perPage)).Find(&entityList)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -320,12 +320,12 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 }
 
 // EntityListByAttribute finds an entity by attribute
-func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []entity {
+func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []Entity {
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subQuery := st.db.Table(st.entityTableName).Model(&entity{}).Select("id").Where("type = ?", entityType)
-	result := st.db.Table(st.attributeTableName).Model(&attribute{}).Select("entity_id").Find(&entityIDs, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
+	subQuery := st.db.Table(st.entityTableName).Model(&Entity{}).Select("id").Where("type = ?", entityType)
+	result := st.db.Table(st.attributeTableName).Model(&Attribute{}).Select("entity_id").Find(&entityIDs, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
@@ -337,7 +337,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(result)
 
-	entities := []entity{}
+	entities := []Entity{}
 
 	resultEntity := st.db.Table(st.entityTableName).Where("id IN (?)", entityIDs).Find(&entities)
 
@@ -355,8 +355,8 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 }
 
 // AttributeCreate creates a new attribute
-func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *attribute {
-	attr := &attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
+func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute {
+	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
 
 	dbResult := st.db.Table(st.attributeTableName).Create(&attr)
 
@@ -368,8 +368,8 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 }
 
 // AttributeFind finds an entity by ID
-func (st *Store) AttributeFind(entityID string, attributeKey string) *attribute {
-	attr := &attribute{}
+func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute {
+	attr := &Attribute{}
 
 	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
 
@@ -385,8 +385,8 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) *attribute 
 }
 
 // AttributeGet the name of the User table
-func (st *Store) AttributeGet(entityID string, attributeKey string) *attribute {
-	attr := &attribute{}
+func (st *Store) AttributeGet(entityID string, attributeKey string) *Attribute {
+	attr := &Attribute{}
 
 	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
 
@@ -440,8 +440,8 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 		attr := st.AttributeFind(entityID, k)
 
 		if attr == nil {
-			attr = &attribute{EntityID: entityID, AttributeKey: k}
-			attr.SetAny(v)
+			attr = &Attribute{EntityID: entityID, AttributeKey: k}
+			attr.SetInterface(v)
 
 			dbResult := tx.Table(st.attributeTableName).Create(&attr)
 			if dbResult.Error != nil {
@@ -451,7 +451,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 		}
 
-		attr.SetAny(v)
+		attr.SetInterface(v)
 		dbResult := tx.Table(st.attributeTableName).Save(attr)
 		if dbResult.Error != nil {
 			return false
