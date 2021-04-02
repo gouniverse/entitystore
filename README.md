@@ -39,7 +39,10 @@ These methods may be subject to change
 - AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
 - AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
 - AttributeGet(entityID string, attributeKey string) *Attribute - finds an attribute by ID
-- AttributeSet(entityID string, attributeKey string, attributeValue string) bool -  creates a new attribute
+- AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
+- AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool -  upserts a new int attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new interface{} attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new string attribute
 - AttributesSet(entityID string, attributes map[string]interface{}) bool - creates multiple attributes
 
 ### Entity Methods
