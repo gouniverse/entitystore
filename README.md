@@ -48,7 +48,7 @@ These methods may be subject to change
 ### Entity Methods
 
 - Delete() bool - deletes the entity
-- GetInt(attributeKey string, defaultValue int) (int, error) - the value of the attribute as string or the default value if it does not exist
+- GetInt(attributeKey string, defaultValue int64) (int64, error) - the value of the attribute as string or the default value if it does not exist
 - GetFloat(attributeKey string, defaultValue float64) (float64, error) - the value of the attribute as float or the default value if it does not exist
 - GetInterface(attributeKey string, defaultValue interface{}) interface{} - the value of the attribute as interface{} or the default value if it does not exist
 - GetString(attributeKey string, defaultValue string) string - the value of the attribute as string or the default value if it does not exist
