@@ -315,6 +315,20 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 	return attr
 }
 
+// AttributeCreateInterface creates a new attribute
+func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) *Attribute {
+	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey}
+	attr.SetInterface(attributeValue)
+
+	dbResult := st.db.Table(st.attributeTableName).Create(&attr)
+
+	if dbResult.Error != nil {
+		return nil
+	}
+
+	return attr
+}
+
 // AttributeFind finds an entity by ID
 func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute {
 	attr := &Attribute{}
@@ -350,8 +364,76 @@ func (st *Store) AttributeGet(entityID string, attributeKey string) *Attribute {
 	return attr
 }
 
-// AttributeSet creates a new entity
-func (st *Store) AttributeSet(entityID string, attributeKey string, attributeValue string) bool {
+
+
+// AttributeSetFloat creates a new entity
+func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool {
+	attr := st.AttributeFind(entityID, attributeKey)
+
+	if attr == nil {
+		attr = st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if attr != nil {
+			return true
+		}
+		return false
+	}
+
+	attr.SetFloat(attributeValue)
+
+	dbResult := st.db.Table(st.attributeTableName).Save(attr)
+	if dbResult.Error != nil {
+		return false
+	}
+
+	return true
+}
+
+// AttributeSetInt creates a new entity
+func (st *Store) AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool {
+	attr := st.AttributeFind(entityID, attributeKey)
+
+	if attr == nil {
+		attr = st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if attr != nil {
+			return true
+		}
+		return false
+	}
+
+	attr.SetInt(attributeValue)
+
+	dbResult := st.db.Table(st.attributeTableName).Save(attr)
+	if dbResult.Error != nil {
+		return false
+	}
+
+	return true
+}
+
+// AttributeSetInterface creates a new entity
+func (st *Store) AttributeSetInterface(entityID string, attributeKey string, attributeValue interface{}) bool {
+	attr := st.AttributeFind(entityID, attributeKey)
+
+	if attr == nil {
+		attr = st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if attr != nil {
+			return true
+		}
+		return false
+	}
+
+	attr.SetInterface(attributeValue)
+
+	dbResult := st.db.Table(st.attributeTableName).Save(attr)
+	if dbResult.Error != nil {
+		return false
+	}
+
+	return true
+}
+
+// AttributeSetString creates a new entity
+func (st *Store) AttributeSetString(entityID string, attributeKey string, attributeValue string) bool {
 	attr := st.AttributeFind(entityID, attributeKey)
 
 	if attr == nil {
@@ -362,7 +444,8 @@ func (st *Store) AttributeSet(entityID string, attributeKey string, attributeVal
 		return false
 	}
 
-	attr.AttributeValue = attributeValue
+	attr.SetString(attributeValue)
+
 	dbResult := st.db.Table(st.attributeTableName).Save(attr)
 	if dbResult.Error != nil {
 		return false
