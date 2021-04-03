@@ -38,12 +38,10 @@ These methods may be subject to change
 - EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []Entity - finds an entity by attribute
 - AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
 - AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
-- AttributeGet(entityID string, attributeKey string) *Attribute - finds an attribute by ID
 - AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
 - AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool -  upserts a new int attribute
 - AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new interface{} attribute
 - AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new string attribute
-- AttributesSet(entityID string, attributes map[string]interface{}) bool - creates multiple attributes
 
 ### Entity Methods
 
@@ -53,7 +51,6 @@ These methods may be subject to change
 - GetInterface(attributeKey string, defaultValue interface{}) interface{} - the value of the attribute as interface{} or the default value if it does not exist
 - GetString(attributeKey string, defaultValue string) string - the value of the attribute as string or the default value if it does not exist
 - GetAttribute(attributeKey string) *Attribute - returns an attribute by key
-- SetAllAny(attributes map[string]interface{}) bool - upserts the attributes
 - SetFloat(attributeKey string, attributeValue float64) bool - sets an attribute with float value
 - SetInt(attributeKey string, attributeValue int64) bool - sets an attribute with int value
 - SetInterface(attributeKey string, attributeValue interface{}) bool - sets an attribute with string value
@@ -66,6 +63,6 @@ These methods may be subject to change
 - GetFloat() (float64, error) - returns the value as float
 - GetString() string - returns the value as string
 - SetFloat(value float64) bool - saves a float value
-- Setint(value int64) bool - saves a int value
+- SetInt(value int64) bool - saves a int value
 - SetInterface(value interface{}) bool - serializes the interface to JSON string and saves it
 - SetString(value string) bool - saves a string value
