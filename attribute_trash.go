@@ -12,6 +12,6 @@ type AttributeTrash struct {
 	AttributeValue string     `gorm:"type:longtext;column:attribute_value;"`
 	CreatedAt      time.Time  `gorm:"type:datetime;column:created_at;DEFAULT NULL;"`
 	UpdatedAt      time.Time  `gorm:"type:datetime;column:updated_at;DEFAULT NULL;"`
-	DeletedAt      *time.Time `gorm:"type:datetime;column:deleted_at;DEFAULT NULL;"`
-	DeletedBy string `gorm:"type:varchar(40);column:deleted_by;DEFAULT NULL;"`
+	DeletedAt      time.Time  `gorm:"type:datetime;column:deleted_at;DEFAULT NULL;"`
+	DeletedBy      string     `gorm:"type:varchar(40);column:deleted_by;DEFAULT NULL;"`
 }
