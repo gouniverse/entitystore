@@ -390,24 +390,7 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute 
 	attr := &Attribute{}
 
 	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil
-	}
-
-	if result.Error != nil {
-		log.Panic(result.Error)
-	}
-
-	return attr
-}
-
-// AttributeGet the name of the User table
-func (st *Store) AttributeGet(entityID string, attributeKey string) *Attribute {
-	attr := &Attribute{}
-
-	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
-
+	
 	if result.Error != nil {
 
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -419,8 +402,6 @@ func (st *Store) AttributeGet(entityID string, attributeKey string) *Attribute {
 
 	return attr
 }
-
-
 
 // AttributeSetFloat creates a new entity
 func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool {
