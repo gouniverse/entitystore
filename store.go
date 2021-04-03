@@ -199,6 +199,49 @@ func (st *Store) EntityDelete(entityID string) bool {
 	return false
 }
 
+// EntityDelete deletes an entity and all attributes
+func (st *Store) EntityDeleteSoft(entityID string) bool {
+	if entityID == "" {
+		return false
+	}
+
+	// Note the use of tx as the database handle once you are within a transaction
+	tx := st.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Update("deleted_at", time.Now()).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Update("deleted_at", time.Now()).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	err := tx.Commit().Error
+
+	if err == nil {
+		return true
+	}
+
+	log.Println(err)
+
+	return false
+}
+
 // EntityFindByID finds an entity by ID
 func (st *Store) EntityFindByID(entityID string) *Entity {
 	if entityID == "" {
