@@ -33,7 +33,7 @@ func TestAttributeString(t *testing.T) {
 		t.Fatalf("Attribute could not be created")
 	}
 
-	attr := store.AttributeGet("default", "hello")
+	attr := store.AttributeFind("default", "hello")
 
 	if attr == nil {
 		t.Fatalf("Attribute could not be retrieved")
@@ -55,7 +55,7 @@ func TestAttributeInt(t *testing.T) {
 		t.Fatalf("Attribute could not be created")
 	}
 
-	attr := store.AttributeGet("default", "test_int")
+	attr := store.AttributeFind("default", "test_int")
 
 	if attr == nil {
 		t.Fatalf("Attribute could not be retrieved")
@@ -78,7 +78,7 @@ func TestAttributeFloat(t *testing.T) {
 		t.Fatalf("Attribute could not be created")
 	}
 
-	attr := store.AttributeGet("default", "test_float")
+	attr := store.AttributeFind("default", "test_float")
 
 	if attr == nil {
 		t.Fatalf("Attribute could not be retrieved")
@@ -101,7 +101,7 @@ func TestAttributeInterface(t *testing.T) {
 		t.Fatalf("Attribute could not be created")
 	}
 
-	attr := store.AttributeGet("default", "test_interface")
+	attr := store.AttributeFind("default", "test_interface")
 
 	if attr == nil {
 		t.Fatalf("Attribute could not be retrieved")
