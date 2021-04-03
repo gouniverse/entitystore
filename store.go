@@ -79,7 +79,7 @@ func NewStore(opts ...StoreOption) *Store {
 	}
 
 	store.entityTrashTableName = store.entityTableName + "_trash"
-	store.attributeTrashTableName = store.attributeTrashTableName + "_trash"
+	store.attributeTrashTableName = store.attributeTableName + "_trash"
 
 	if store.automigrateEnabled == true {
 		store.AutoMigrate()
