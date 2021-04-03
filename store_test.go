@@ -2,7 +2,7 @@ package entitystore
 
 import (
 	//"log"
-	"log"
+	// "log"
 	"testing"
 	//"database/sql"
 	_ "github.com/mattn/go-sqlite3"
@@ -45,7 +45,7 @@ func TestStoreAutomigrate(t *testing.T) {
 	}
 }
 
-func TestStoreSoftDelete(t *testing.T) {
+func TestStoreEntityDelete(t *testing.T) {
 	db := InitDB("entity_create.db")
 	
 	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
@@ -58,11 +58,13 @@ func TestStoreSoftDelete(t *testing.T) {
 
 	entity.SetString("title", "Hello world")
 
-	isDeletedSoft := store.EntityDeleteSoft(entity.ID)
+	isDeleted := store.EntityDelete(entity.ID)
 
-	if isDeletedSoft == false {
+	if isDeleted == false {
 		t.Fatalf("Entity could not be soft deleted")
 	} 
 
-	log.Println(store.EntityFindByID(entity.ID).DeletedAt)
+	if store.EntityFindByID(entity.ID) != nil {
+		t.Fatalf("Entity should no longer be present")
+	}
 }
