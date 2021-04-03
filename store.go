@@ -197,7 +197,7 @@ func (st *Store) EntityDelete(entityID string) bool {
 		Type:      ent.Type,
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,
-		DeletedAt: time.Now,
+		DeletedAt: time.Now(),
 	}
 
 	if err := tx.Table(st.entityTrashTableName).Create(entTrash).Error; err != nil {
@@ -216,7 +216,7 @@ func (st *Store) EntityDelete(entityID string) bool {
 			AttributeValue:      attr.AttributeValue,
 			CreatedAt: attr.CreatedAt,
 			UpdatedAt: attr.UpdatedAt,
-			DeletedAt: time.Now,
+			DeletedAt: time.Now(),
 		}
 
 		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
