@@ -11,10 +11,12 @@ import (
 
 // Store defines an entity store
 type Store struct {
-	entityTableName    string
-	attributeTableName string
-	db                 *gorm.DB
-	automigrateEnabled bool
+	entityTableName         string
+	attributeTableName      string
+	entityTrashTableName    string
+	attributeTrashTableName string
+	db                      *gorm.DB
+	automigrateEnabled      bool
 }
 
 // StoreOption options for the vault store
@@ -76,6 +78,9 @@ func NewStore(opts ...StoreOption) *Store {
 		log.Panic("Entity store: attributeTableName is required")
 	}
 
+	store.entityTrashTableName = store.entityTableName + "_trash"
+	store.attributeTrashTableName = store.attributeTrashTableName + "_trash"
+
 	if store.automigrateEnabled == true {
 		store.AutoMigrate()
 	}
@@ -87,8 +92,9 @@ func NewStore(opts ...StoreOption) *Store {
 func (st *Store) AutoMigrate() {
 	st.db.Table(st.entityTableName).AutoMigrate(&Entity{})
 	st.db.Table(st.attributeTableName).AutoMigrate(&Attribute{})
+	st.db.Table(st.attributeTrashTableName).AutoMigrate(&AttributeTrash{})
+	st.db.Table(st.entityTrashTableName).AutoMigrate(&EntityTrash{})
 }
-
 
 // EntityCount counts entities
 func (st *Store) EntityCount(entityType string) uint64 {
@@ -261,7 +267,7 @@ func (st *Store) EntityFindByID(entityID string) *Entity {
 	}
 
 	// DEBUG: log.Println(entity)
-	
+
 	ent.st = st // Add store reference
 
 	return ent
@@ -297,7 +303,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 	}
 
 	// DEBUG: log.Println(entity)
-	
+
 	ent.st = st // Add store reference
 
 	return ent
@@ -306,13 +312,13 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 // EntityList lists entities
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity {
 	entityList := []Entity{}
-	
+
 	result := st.db.Table(st.entityTableName).Where("type=?", entityType).Order(orderBy + " " + sort).Offset(int(offset)).Limit(int(perPage)).Find(&entityList)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
-	
+
 	for k := range entityList {
 		entityList[k].st = st
 	}
@@ -351,7 +357,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	}
 
 	// DEBUG: log.Println(entity)
-	
+
 	for k := range entityList {
 		entityList[k].st = st
 	}
@@ -391,7 +397,7 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute 
 	attr := &Attribute{}
 
 	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
-	
+
 	if result.Error != nil {
 
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
