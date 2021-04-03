@@ -4,23 +4,10 @@ import (
 	//"log"
 	"testing"
 	//"database/sql"
-	_ "github.com/mattn/go-sqlite3"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	// _ "github.com/mattn/go-sqlite3"
+	// "gorm.io/driver/sqlite"
+	// "gorm.io/gorm"
 )
-
-func InitDB(filepath string) *gorm.DB /**sql.DB*/ {
-
-  db, err := gorm.Open(sqlite.Open(filepath), &gorm.Config{})
-  if err != nil { panic(err) }
-  // Auto Migrate
-//   db.AutoMigrate(&Entity{})
-	// db, err := sql.Open("sqlite3", filepath)
-	// if err != nil { panic(err) }
-	// if db == nil { panic("db nil") }
-	// return db
-	return db
-}
 
 func TestEntityCreate(t *testing.T) {
 	db := InitDB("entity_create.db")
