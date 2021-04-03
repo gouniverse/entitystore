@@ -183,6 +183,46 @@ func (st *Store) EntityDelete(entityID string) bool {
 		return false
 	}
 
+	ent := st.EntityFindByID(entityID)
+
+	if ent==nil{
+        tx.Rollback()
+		log.Println("Entity not found")
+		return false
+	}
+
+	entTrash := EntityTrash{
+		ID:        ent.ID,
+		Status:    ent.Status,
+		Type:      ent.Type,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
+	}
+
+	if err := tx.Table(st.entityTrashTableName).Create(entTrash).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	attrs := st.EntityAttributeList(entityID)
+
+	for _, attr := range attrs {
+		attrTrash := AttributeTrash {
+			ID:        attr.ID,
+			AttributeKey:    attr.AttributeKey,
+			AttributeValue:      attr.AttributeValue,
+			CreatedAt: attr.CreatedAt,
+			UpdatedAt: attr.UpdatedAt,
+		}
+
+		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return false
+		}
+	}
+
 	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
 		tx.Rollback()
 		log.Println(err)
@@ -247,6 +287,24 @@ func (st *Store) EntityDeleteSoft(entityID string) bool {
 	log.Println(err)
 
 	return false
+}
+
+// EntityAttributeList list all atributes of an entity
+func (st *Store) EntityAttributeList(entityID string) []Attribute {
+	var attrs []Attribute
+
+	result := st.db.Table(st.attributeTableName).Find(&attrs, "entity_id=?", entityID)
+
+	if result.Error != nil {
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+
+		log.Panic(result.Error)
+	}
+
+	return attrs
 }
 
 // EntityFindByID finds an entity by ID
