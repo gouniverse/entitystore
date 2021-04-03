@@ -3,6 +3,7 @@ package entitystore
 import (
 	"errors"
 	"log"
+	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -199,7 +200,7 @@ func (st *Store) EntityDelete(entityID string) bool {
 	return false
 }
 
-// EntityDelete deletes an entity and all attributes
+// EntityDeleteSoft soft deletes an entity and all attributes
 func (st *Store) EntityDeleteSoft(entityID string) bool {
 	if entityID == "" {
 		return false
@@ -312,7 +313,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 		return nil
 	}
 	
-	for k, _ := range entityList {
+	for k := range entityList {
 		entityList[k].st = st
 	}
 
@@ -351,7 +352,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	// DEBUG: log.Println(entity)
 	
-	for k, _ := range entityList {
+	for k := range entityList {
 		entityList[k].st = st
 	}
 
