@@ -96,6 +96,24 @@ func (st *Store) AutoMigrate() {
 	st.db.Table(st.entityTrashTableName).AutoMigrate(&EntityTrash{})
 }
 
+// EntityAttributeList list all atributes of an entity
+func (st *Store) EntityAttributeList(entityID string) []Attribute {
+	var attrs []Attribute
+
+	result := st.db.Table(st.attributeTableName).Find(&attrs, "entity_id=?", entityID)
+
+	if result.Error != nil {
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+
+		log.Panic(result.Error)
+	}
+
+	return attrs
+}
+
 // EntityCount counts entities
 func (st *Store) EntityCount(entityType string) uint64 {
 	var count int64
@@ -292,22 +310,32 @@ func (st *Store) EntityDeleteSoft(entityID string) bool {
 	return false
 }
 
-// EntityAttributeList list all atributes of an entity
-func (st *Store) EntityAttributeList(entityID string) []Attribute {
-	var attrs []Attribute
-
-	result := st.db.Table(st.attributeTableName).Find(&attrs, "entity_id=?", entityID)
-
-	if result.Error != nil {
-
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil
-		}
-
-		log.Panic(result.Error)
+// EntityFindByHandle finds an entity by handle
+func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Entity {
+	if entityType == "" {
+		return nil
+	}
+	
+	if entityHandle == "" {
+		return nil
 	}
 
-	return attrs
+	ent := &Entity{}
+
+	resultEntity := st.db.Table(st.entityTableName).First(&ent, "type=? AND handle=?", entityType, entityHandle)
+
+	if resultEntity.Error != nil {
+		if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		log.Panic(resultEntity.Error)
+	}
+
+	// DEBUG: log.Println(entity)
+
+	ent.st = st // Add store reference
+
+	return ent
 }
 
 // EntityFindByID finds an entity by ID
