@@ -21,9 +21,10 @@ const (
 
 // Entity type
 type Entity struct {
-	ID     string `gorm:"type:varchar(40);column:id;primary_key;"`
-	Status string `gorm:"type:varchar(10);column:status;"`
-	Type   string `gorm:"type:varchar(40);column:type;"`
+	ID      string `gorm:"type:varchar(40);column:id;primary_key;"`
+	Status  string `gorm:"type:varchar(10);column:status;"`
+	Type    string `gorm:"type:varchar(40);column:type;"`
+	Handle	string `gorm:"type:varchar(60);column:name;DEFAULT NULL;"`
 	//Name        string     `gorm:"type:varchar(255);column:name;DEFAULT NULL;"`
 	//Description string     `gorm:"type:longtext;column:description;"`
 	CreatedAt time.Time  `gorm:"type:datetime;column:created_at;DEFAULT NULL;"`
