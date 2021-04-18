@@ -47,6 +47,11 @@ func (e *Entity) Delete() bool {
 	return e.st.EntityDelete(e.ID)
 }
 
+// Trash moves the entity to the trash bin
+func (e *Entity) Trash() bool {
+	return e.st.EntityTrash(e.ID)
+}
+
 // GetAny the value of the attribute as interface{} or the default value if it does not exist
 func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) interface{} {
 	attr := e.GetAttribute(attributeKey)
