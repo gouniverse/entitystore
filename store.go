@@ -103,7 +103,7 @@ func (st *Store) GetAttributeTrashTableName() string {
 }
 
 func (st *Store) GetDB() *gorm.DB {
-	return db
+	return st.db
 }
 
 func (st *Store) GetEntityTrashTableName() string {
