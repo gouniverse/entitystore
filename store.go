@@ -93,3 +93,19 @@ func (st *Store) AutoMigrate() {
 	st.db.Table(st.attributeTrashTableName).AutoMigrate(&AttributeTrash{})
 	st.db.Table(st.entityTrashTableName).AutoMigrate(&EntityTrash{})
 }
+
+func (st *Store) GetAttributeTableName() string {
+	return st.attributeTableName
+}
+
+func (st *Store) GetAttributeTrashTableName() string {
+	return st.attributeTrashTableName
+}
+
+func (st *Store) GetEntityTableName() string {
+	return st.entityTableName
+}
+
+func (st *Store) GetEntityTrashTableName() string {
+	return st.entityTrashTableName
+}
