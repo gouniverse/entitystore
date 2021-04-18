@@ -19,6 +19,8 @@ entityStore = entitystore.NewStore(entitystore.WithGormDb(databaseInstance), ent
 person := entityStore.EntityCreate("person")
 person.SetString("name","Jon Doe")
 person.SetInt("age", 32)
+person.SetFloat("salary", 1234.56)
+person.SetInterface("kids", []string{"Tina","Sam"})
 ```
 
 ## Methods
