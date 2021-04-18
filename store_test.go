@@ -21,7 +21,7 @@ func InitDB(filepath string) *gorm.DB /**sql.DB*/ {
 }
 
 func TestStoreCreate(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_entity_create.db")
 	
 	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
 	
@@ -33,7 +33,7 @@ func TestStoreCreate(t *testing.T) {
 
 
 func TestStoreAutomigrate(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_entity_automigrate.db")
 	
 	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"))
 
@@ -46,7 +46,7 @@ func TestStoreAutomigrate(t *testing.T) {
 }
 
 func TestStoreEntityDelete(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_entity_delete.db")
 	
 	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
 	
@@ -59,6 +59,30 @@ func TestStoreEntityDelete(t *testing.T) {
 	entity.SetString("title", "Hello world")
 
 	isDeleted := store.EntityDelete(entity.ID)
+
+	if isDeleted == false {
+		t.Fatalf("Entity could not be soft deleted")
+	} 
+
+	if store.EntityFindByID(entity.ID) != nil {
+		t.Fatalf("Entity should no longer be present")
+	}
+}
+
+func TestStoreEntityTrash(t *testing.T) {
+	db := InitDB("test_entity_trash.db")
+	
+	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
+	
+	entity := store.EntityCreate("post")
+	
+	if entity == nil{
+		t.Fatalf("Entity could not be created")
+	}
+
+	entity.SetString("title", "Hello world")
+
+	isDeleted := store.EntityTrash(entity.ID)
 
 	if isDeleted == false {
 		t.Fatalf("Entity could not be soft deleted")
