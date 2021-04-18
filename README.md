@@ -1,6 +1,12 @@
 # Entity Store
 
-Saves data in SQL database in a "schemaless" way
+Saves data in SQL database in a "schemaless" way.
+
+## Features
+
+- Stores any entity with unlimited number of attributes
+- Attributes can store any type of data - strings, integers, floating point numbers, any intefaces
+- Uses GORM to provide database drivers (SQLite, MySQL, etc)
 
 ## Installation
 ```
@@ -15,6 +21,7 @@ entityStore = entitystore.NewStore(entitystore.WithGormDb(databaseInstance), ent
 
 ## Usage
 
+1. Create a new entity
 ```
 person := entityStore.EntityCreate("person")
 person.SetString("name","Jon Doe")
@@ -22,6 +29,21 @@ person.SetInt("age", 32)
 person.SetFloat("salary", 1234.56)
 person.SetInterface("kids", []string{"Tina","Sam"})
 ```
+
+2. Retrieve an entity
+```
+personID := "{THE PERSON ID}"
+person := entityStore.EntityFind(personID)
+person.GetString("name")
+person.GetInt("age")
+person.GetFloat("salary")
+person.GetInterface("kids")
+```
+
+
+## Database Schema
+
+<img src="entitystore-database-schema.png" />
 
 ## Methods
 
