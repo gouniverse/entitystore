@@ -102,7 +102,7 @@ func (st *Store) GetAttributeTrashTableName() string {
 	return st.attributeTrashTableName
 }
 
-func (st *Store) GetEntityTableName() *gorm.DB {
+func (st *Store) GetDB() *gorm.DB {
 	return db
 }
 
