@@ -10,7 +10,7 @@ Saves data in SQL database in a "schemaless" way.
 - Attributes can store any type of data - strings, integers, floating point numbers, any intefaces
 - Uses GORM to provide database drivers (SQLite, MySQL, etc)
 - 99% of required storage functionality provided out of the box
-- SQL available for more sophisticated cases - reporting, diagrams, etc.
+- Full SQL available for more sophisticated cases - reporting, diagrams, etc.
 
 ## Installation
 ```
