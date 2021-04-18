@@ -3,7 +3,6 @@ package entitystore
 import (
 	"errors"
 	"log"
-	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
