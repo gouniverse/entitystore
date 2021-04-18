@@ -1,7 +1,6 @@
 package entitystore
 
 import (
-	"errors"
 	"log"
 
 	"gorm.io/driver/sqlite"
