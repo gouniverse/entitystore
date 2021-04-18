@@ -106,8 +106,8 @@ func (st *Store) GetDB() *gorm.DB {
 	return st.db
 }
 
-func (st *Store) GetEntityTrashTableName() string {
-	return st.entityTrashTableName
+func (st *Store) GetEntityTableName() string {
+	return st.entityTableName
 }
 
 func (st *Store) GetEntityTrashTableName() string {
