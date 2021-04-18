@@ -454,6 +454,50 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	return entityList
 }
 
+// EntityTrash moves an entity and all attributes to the trash bin
+func (st *Store) EntityTrash(entityID string) bool {
+	if entityID == "" {
+		return false
+	}
+
+	// Note the use of tx as the database handle once you are within a transaction
+	tx := st.db.Begin()
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Delete(&Entity{}).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	err := tx.Commit().Error
+
+	if err == nil {
+		return true
+	}
+
+	log.Println(err)
+
+	return false
+}
+
+
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute {
 	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
