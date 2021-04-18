@@ -36,6 +36,7 @@ These methods may be subject to change
 - EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity - finds an entity by attribute
 - EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity - lists entities
 - EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []Entity - finds an entity by attribute
+- EntityTrash(entityID string) - moves an entity and all its attributes to the trash bin
 - AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
 - AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
 - AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
