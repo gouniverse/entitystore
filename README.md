@@ -4,10 +4,13 @@ Saves data in SQL database in a "schemaless" way.
 
 ## Features
 
-- Stores entities of any type
-- Stores unlimited number of attributes to each attributes
+- Single store can store unlimited number of entities of any type
+- Single store can store unlimited number of attributes for each entity
+- Multiple stores can be used to store specific types
 - Attributes can store any type of data - strings, integers, floating point numbers, any intefaces
 - Uses GORM to provide database drivers (SQLite, MySQL, etc)
+- 99% of required storage functionality provided out of the box
+- SQL available for more sophisticated cases - reporting, diagrams, etc.
 
 ## Installation
 ```
