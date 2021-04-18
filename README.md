@@ -32,6 +32,7 @@ These methods may be subject to change
 - EntityCreate(entityType string) *Entity - creates a new entity
 - EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity
 - EntityDelete(entityID string) - deletes an entity and all attributes
+- (DEPERECATED) EntityDeleteSoft(entityID string) - soft deletes an entity and all attributes (DEPERECATED)
 - EntityFindByID(entityID string) *Entity - finds an entity by ID
 - EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity - finds an entity by attribute
 - EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity - lists entities
