@@ -27,6 +27,13 @@ These methods may be subject to change
 
 ### Store Methods
 
+
+- AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
+- AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
+- AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
+- AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool -  upserts a new int attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new interface{} attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new string attribute
 - AutoMigrate() - auto migrate
 - EntityCount(entityType string) uint64 - counts entities
 - EntityCreate(entityType string) *Entity - creates a new entity
@@ -38,12 +45,12 @@ These methods may be subject to change
 - EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity - lists entities
 - EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []Entity - finds an entity by attribute
 - EntityTrash(entityID string) - moves an entity and all its attributes to the trash bin
-- AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
-- AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
-- AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
-- AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool -  upserts a new int attribute
-- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new interface{} attribute
-- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new string attribute
+- GetAttributeTableName() string
+- GetAttributeTrashTableName() string
+- GetDB() *gorm.DB
+- GetEntityTableName() string
+- GetEntityTrashTableName() string
+
 
 ### Entity Methods
 
