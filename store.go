@@ -102,8 +102,12 @@ func (st *Store) GetAttributeTrashTableName() string {
 	return st.attributeTrashTableName
 }
 
-func (st *Store) GetEntityTableName() string {
-	return st.entityTableName
+func (st *Store) GetEntityTableName() *gorm.DB {
+	return db
+}
+
+func (st *Store) GetEntityTrashTableName() string {
+	return st.entityTrashTableName
 }
 
 func (st *Store) GetEntityTrashTableName() string {
