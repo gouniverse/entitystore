@@ -40,8 +40,8 @@ func (a *Attribute) GetInterface() interface{} {
 }
 
 // GetInt returns the value as int
-func (a *Attribute) GetInt() (int, error) {
-	return strconv.Atoi(a.AttributeValue)
+func (a *Attribute) GetInt() (int64, error) {
+	return strconv.ParseInt(a.AttributeValue, 10, 64)
 }
 
 // GetFloat returns the value as float
