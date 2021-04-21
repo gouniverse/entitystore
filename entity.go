@@ -64,7 +64,7 @@ func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) interface
 }
 
 // GetInt the value of the attribute as string or the default value if it does not exist
-func (e *Entity) GetInt(attributeKey string, defaultValue int) (int, error) {
+func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) {
 	attr := e.GetAttribute(attributeKey)
 
 	if attr == nil {
