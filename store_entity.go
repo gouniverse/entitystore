@@ -113,49 +113,6 @@ func (st *Store) EntityDelete(entityID string) bool {
 		return false
 	}
 
-	ent := st.EntityFindByID(entityID)
-
-	if ent==nil{
-        tx.Rollback()
-		log.Println("Entity not found")
-		return false
-	}
-
-	entTrash := EntityTrash{
-		ID:        ent.ID,
-		Status:    ent.Status,
-		Type:      ent.Type,
-		CreatedAt: ent.CreatedAt,
-		UpdatedAt: ent.UpdatedAt,
-		DeletedAt: time.Now(),
-	}
-
-	if err := tx.Table(st.entityTrashTableName).Create(entTrash).Error; err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
-	}
-
-	attrs := st.EntityAttributeList(entityID)
-
-	for _, attr := range attrs {
-		attrTrash := AttributeTrash {
-			ID:        attr.ID,
-			EntityID:    attr.EntityID,
-			AttributeKey:    attr.AttributeKey,
-			AttributeValue:      attr.AttributeValue,
-			CreatedAt: attr.CreatedAt,
-			UpdatedAt: attr.UpdatedAt,
-			DeletedAt: time.Now(),
-		}
-
-		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
-			tx.Rollback()
-			log.Println(err)
-			return false
-		}
-	}
-
 	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
 		tx.Rollback()
 		log.Println(err)
@@ -180,47 +137,47 @@ func (st *Store) EntityDelete(entityID string) bool {
 }
 
 // EntityDeleteSoft soft deletes an entity and all attributes
-func (st *Store) EntityDeleteSoft(entityID string) bool {
-	if entityID == "" {
-		return false
-	}
+// func (st *Store) EntityDeleteSoft(entityID string) bool {
+// 	if entityID == "" {
+// 		return false
+// 	}
 
-	// Note the use of tx as the database handle once you are within a transaction
-	tx := st.db.Begin()
+// 	// Note the use of tx as the database handle once you are within a transaction
+// 	tx := st.db.Begin()
 
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+// 	defer func() {
+// 		if r := recover(); r != nil {
+// 			tx.Rollback()
+// 		}
+// 	}()
 
-	if err := tx.Error; err != nil {
-		log.Println(err)
-		return false
-	}
+// 	if err := tx.Error; err != nil {
+// 		log.Println(err)
+// 		return false
+// 	}
 
-	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Update("deleted_at", time.Now()).Error; err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
-	}
+// 	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Update("deleted_at", time.Now()).Error; err != nil {
+// 		tx.Rollback()
+// 		log.Println(err)
+// 		return false
+// 	}
 
-	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Update("deleted_at", time.Now()).Error; err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
-	}
+// 	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Update("deleted_at", time.Now()).Error; err != nil {
+// 		tx.Rollback()
+// 		log.Println(err)
+// 		return false
+// 	}
 
-	err := tx.Commit().Error
+// 	err := tx.Commit().Error
 
-	if err == nil {
-		return true
-	}
+// 	if err == nil {
+// 		return true
+// 	}
 
-	log.Println(err)
+// 	log.Println(err)
 
-	return false
-}
+// 	return false
+// }
 
 // EntityFindByHandle finds an entity by handle
 func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Entity {
@@ -366,6 +323,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	return entityList
 }
 
+
 // EntityTrash moves an entity and all attributes to the trash bin
 func (st *Store) EntityTrash(entityID string) bool {
 	if entityID == "" {
@@ -384,6 +342,49 @@ func (st *Store) EntityTrash(entityID string) bool {
 	if err := tx.Error; err != nil {
 		log.Println(err)
 		return false
+	}
+
+	ent := st.EntityFindByID(entityID)
+
+	if ent==nil{
+        tx.Rollback()
+		log.Println("Entity not found")
+		return false
+	}
+
+	entTrash := EntityTrash{
+		ID:        ent.ID,
+		Status:    ent.Status,
+		Type:      ent.Type,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
+		DeletedAt: time.Now(),
+	}
+
+	if err := tx.Table(st.entityTrashTableName).Create(entTrash).Error; err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	attrs := st.EntityAttributeList(entityID)
+
+	for _, attr := range attrs {
+		attrTrash := AttributeTrash {
+			ID:        attr.ID,
+			EntityID:    attr.EntityID,
+			AttributeKey:    attr.AttributeKey,
+			AttributeValue:      attr.AttributeValue,
+			CreatedAt: attr.CreatedAt,
+			UpdatedAt: attr.UpdatedAt,
+			DeletedAt: time.Now(),
+		}
+
+		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
+			tx.Rollback()
+			log.Println(err)
+			return false
+		}
 	}
 
 	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
