@@ -130,26 +130,26 @@ func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 }
 
 // SetAllAny upserts the attributes
-// func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
-// 	return e.st.AttributesSet(e.ID, attributes)
-// }
+func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
+	return e.st.AttributesSet(e.ID, attributes)
+}
 
-// // SetInterface sets an attribute with string value
-// func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) bool {
-// 	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
-// }
+// SetInterface sets an attribute with string value
+func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) (bool, error) {
+	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
+}
 
-// // SetFloat sets an attribute with float value
-// func (e *Entity) SetFloat(attributeKey string, attributeValue float64) bool {
-// 	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
-// }
+// SetFloat sets an attribute with float value
+func (e *Entity) SetFloat(attributeKey string, attributeValue float64) (bool, error) {
+	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
+}
 
-// // SetInt sets an attribute with int value
-// func (e *Entity) SetInt(attributeKey string, attributeValue int64) bool {
-// 	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
-// }
+// SetInt sets an attribute with int value
+func (e *Entity) SetInt(attributeKey string, attributeValue int64) (bool, error) {
+	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
+}
 
-// // SetString sets an attribute with string value
-// func (e *Entity) SetString(attributeKey string, attributeValue string) bool {
-// 	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
-// }
+// SetString sets an attribute with string value
+func (e *Entity) SetString(attributeKey string, attributeValue string) (bool, error) {
+	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
+}
