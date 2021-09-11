@@ -137,47 +137,67 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 }
 
 // AttributeSetInterface creates a new entity
-func (st *Store) AttributeSetInterface(entityID string, attributeKey string, attributeValue interface{}) bool {
+func (st *Store) AttributeSetInterface(entityID string, attributeKey string, attributeValue interface{}) (bool, error) {
 	attr := st.AttributeFind(entityID, attributeKey)
 
 	if attr == nil {
-		attr = st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
-		if attr != nil {
-			return true
+		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if err != nil {
+			return false, err
 		}
-		return false
+		if attr != nil {
+			return true, nil
+		}
+		return false, err
 	}
 
 	attr.SetInterface(attributeValue)
 
-	dbResult := st.db.Table(st.attributeTableName).Save(attr)
-	if dbResult.Error != nil {
-		return false
+	attr.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+
+	// log.Println(sqlStr)
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
 	}
 
-	return true
+	return true, nil
 }
 
 // AttributeSetString creates a new entity
-func (st *Store) AttributeSetString(entityID string, attributeKey string, attributeValue string) bool {
+func (st *Store) AttributeSetString(entityID string, attributeKey string, attributeValue string) (bool, error) {
 	attr := st.AttributeFind(entityID, attributeKey)
 
 	if attr == nil {
-		attr = st.AttributeCreate(entityID, attributeKey, attributeValue)
-		if attr != nil {
-			return true
+		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if err != nil {
+			return false, err
 		}
-		return false
+		if attr != nil {
+			return true, nil
+		}
+		return false, err
 	}
 
 	attr.SetString(attributeValue)
 
-	dbResult := st.db.Table(st.attributeTableName).Save(attr)
-	if dbResult.Error != nil {
-		return false
+	attr.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+
+	// log.Println(sqlStr)
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
 	}
 
-	return true
+	return true, nil
 }
 
 // AttributesSet upserts and entity attribute
