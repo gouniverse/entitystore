@@ -3,7 +3,7 @@ module github.com/gouniverse/entitystore
 go 1.16
 
 require (
-	github.com/doug-martin/goqu/v9 v9.16.0 // indirect
+	github.com/doug-martin/goqu/v9 v9.16.0
 	github.com/gouniverse/uid v1.2.0
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.8
