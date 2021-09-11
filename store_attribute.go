@@ -8,16 +8,26 @@ import (
 )
 
 // AttributeCreate creates a new attribute
-func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute {
-	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey, AttributeValue: attributeValue}
+func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
+	var newAttribute = Attribute{
+		ID:        uid.MicroUid(),
+		Key:       key,
+		Value:     value,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	sqlStr, _, _ = goqu.Insert(e.st.attributeTableName).Rows(newAttribute).ToSQL()
 
-	dbResult := st.db.Table(st.attributeTableName).Create(&attr)
+	log.Println(sqlStr)
 
-	if dbResult.Error != nil {
-		return nil
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
 	}
 
-	return attr
+	return newAttribute, nil
 }
 
 // AttributeCreateInterface creates a new attribute
