@@ -35,16 +35,21 @@ func (st *Store) EntityCount(entityType string) uint64 {
 }
 
 // EntityCreate creates a new entity
-func (st *Store) EntityCreate(entityType string) *Entity {
+func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 	entity := &Entity{Type: entityType, Status: "active", st: st}
 
-	dbResult := st.db.Table(st.entityTableName).Create(&entity)
+	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(entity).ToSQL()
 
-	if dbResult.Error != nil {
-		return nil
+	log.Println(sqlStr)
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return entity, err
 	}
 
-	return entity
+	return entity, nil
 }
 
 // EntityCreateWithAttributes func
