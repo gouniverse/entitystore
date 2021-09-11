@@ -1,6 +1,7 @@
 package entitystore
 
 import (
+	"database/sql"
 	"errors"
 	"log"
 	"time"
@@ -204,16 +205,18 @@ func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Ent
 
 	ent := &Entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).First(&ent, "type=? AND handle=?", entityType, entityHandle)
+	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType), goqu.C("entity_handle").Eq(entityHandle), goqu.C("deleted_at").IsNull()).Select(Entity{}).ToSQL()
 
-	if resultEntity.Error != nil {
-		if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+	log.Println(sqlStr)
+
+	err := st.db.QueryRow(sqlStr).Scan(&ent.CreatedAt, &ent.DeletedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil
 		}
-		log.Panic(resultEntity.Error)
+		log.Fatal("Failed to execute query: ", err)
+		return nil
 	}
-
-	// DEBUG: log.Println(entity)
 
 	ent.st = st // Add store reference
 
@@ -228,16 +231,18 @@ func (st *Store) EntityFindByID(entityID string) *Entity {
 
 	ent := &Entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", entityID)
+	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select(Entity{}).ToSQL()
 
-	if resultEntity.Error != nil {
-		if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
+	log.Println(sqlStr)
+
+	err := st.db.QueryRow(sqlStr).Scan(&ent.CreatedAt, &ent.DeletedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil
 		}
-		log.Panic(resultEntity.Error)
+		log.Fatal("Failed to execute query: ", err)
+		return nil
 	}
-
-	// DEBUG: log.Println(entity)
 
 	ent.st = st // Add store reference
 
@@ -246,38 +251,20 @@ func (st *Store) EntityFindByID(entityID string) *Entity {
 
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity {
-	attr := &Attribute{}
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Select("id").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue), goqu.C("deleted_at").IsNull()).Select("entity_id").ToSQL()
 
-	subQuery := st.db.Table(st.entityTableName).Model(&Entity{}).Select("id").Where("type = ?", entityType)
-	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	var entityID string
+	err := st.db.QueryRow(sqlStr).Scan(&entityID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		}
+		log.Fatal("Failed to execute query: ", err)
 		return nil
 	}
 
-	if result.Error != nil {
-		log.Panic(result.Error)
-	}
-
-	// DEBUG: log.Println(entityAttribute)
-
-	ent := &Entity{}
-
-	resultEntity := st.db.Table(st.entityTableName).First(&ent, "id=?", attr.EntityID)
-
-	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
-		return nil
-	}
-
-	if resultEntity.Error != nil {
-		log.Panic(resultEntity.Error)
-	}
-
-	// DEBUG: log.Println(entity)
-
-	ent.st = st // Add store reference
-
-	return ent
+	return st.EntityFindByID(entityID)
 }
 
 // EntityList lists entities
