@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 	"time"
-
-	"github.com/gouniverse/uid"
-	"gorm.io/gorm"
 )
 
 // Attribute type
@@ -21,11 +18,11 @@ type Attribute struct {
 }
 
 // BeforeCreate adds UID to model
-func (a *Attribute) BeforeCreate(tx *gorm.DB) (err error) {
-	uuid := uid.HumanUid()
-	a.ID = uuid
-	return nil
-}
+// func (a *Attribute) BeforeCreate(tx *gorm.DB) (err error) {
+// 	uuid := uid.HumanUid()
+// 	a.ID = uuid
+// 	return nil
+// }
 
 // GetInterface de-serializes the values
 func (a *Attribute) GetInterface() interface{} {

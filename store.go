@@ -129,7 +129,7 @@ func (st *Store) DriverName(db *sql.DB) string {
 	if strings.Contains(driverFullName, "postgres") || strings.Contains(driverFullName, "pq") {
 		return "postgres"
 	}
-	if strings.Contains(driverFullName, "sqlite") {
+	if strings.Contains(driverFullName, "sqlite") || strings.Contains(driverFullName, "sqlite3") {
 		return "sqlite"
 	}
 	if strings.Contains(driverFullName, "mssql") {

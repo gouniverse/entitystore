@@ -12,7 +12,7 @@ import (
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
 	var newAttribute = &Attribute{
-		ID:             uid.MicroUid(),
+		ID:             uid.HumanUid(),
 		AttributeKey:   attributeKey,
 		AttributeValue: attributeValue,
 		CreatedAt:      time.Now(),
@@ -35,7 +35,7 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 
 // AttributeCreateInterface creates a new attribute
 func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
-	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	attr := &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	attr.SetInterface(attributeValue)
 
 	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
@@ -63,7 +63,7 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, err
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -188,29 +188,29 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 	}
 
 	if attr == nil {
-		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
-		if err != nil {
-			return false, err
-		}
-		if attr != nil {
-			return true, nil
-		}
-		return false, err
+		// 	attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		// 	if err != nil {
+		// 		return false, err
+		// 	}
+		// 	if attr != nil {
+		// 		return true, nil
+		// 	}
+		// 	return false, err
 	}
 
-	attr.SetString(attributeValue)
+	// attr.SetString(attributeValue)
 
-	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	// attr.UpdatedAt = time.Now()
+	// sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
 
-	// log.Println(sqlStr)
+	// // log.Println(sqlStr)
 
-	_, err = st.db.Exec(sqlStr)
+	// _, err = st.db.Exec(sqlStr)
 
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return false, err
+	// }
 
 	return true, nil
 }
@@ -239,7 +239,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 		}
 
 		if attr == nil {
-			attr = &Attribute{EntityID: entityID, AttributeKey: k}
+			attr = &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: k, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 			attr.SetInterface(v)
 
 			sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()

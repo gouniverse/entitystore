@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
+	"github.com/gouniverse/uid"
 )
 
 // EntityAttributeList list all atributes of an entity
@@ -44,7 +45,7 @@ func (st *Store) EntityCount(entityType string) uint64 {
 
 // EntityCreate creates a new entity
 func (st *Store) EntityCreate(entityType string) (*Entity, error) {
-	entity := &Entity{Type: entityType, Status: "active", st: st}
+	entity := &Entity{ID: uid.HumanUid(), Type: entityType, Status: "active", CreatedAt: time.Now(), UpdatedAt: time.Now(), st: st}
 
 	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(entity).ToSQL()
 

@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	//"database/sql"
-	// _ "github.com/mattn/go-sqlite3"
-	_ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
+	// _ "modernc.org/sqlite"
 )
 
 func InitDB(filepath string) *sql.DB {
-	dsn := filepath
-	db, err := sql.Open("sqlite", dsn)
+	dsn := filepath + "?doNotInterpretDatetime=1"
+	db, err := sql.Open("sqlite3", dsn)
 
 	if err != nil {
 		panic(err)
@@ -70,26 +70,26 @@ func TestStoreEntityDelete(t *testing.T) {
 	}
 }
 
-func TestStoreEntityTrash(t *testing.T) {
-	db := InitDB("test_entity_trash.db")
+// func TestStoreEntityTrash(t *testing.T) {
+// 	db := InitDB("test_entity_trash.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+// 	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	entity, _ := store.EntityCreate("post")
+// 	entity, _ := store.EntityCreate("post")
 
-	if entity == nil {
-		t.Fatalf("Entity could not be created")
-	}
+// 	if entity == nil {
+// 		t.Fatalf("Entity could not be created")
+// 	}
 
-	entity.SetString("title", "Hello world")
+// 	entity.SetString("title", "Hello world")
 
-	isDeleted := store.EntityTrash(entity.ID)
+// 	isDeleted := store.EntityTrash(entity.ID)
 
-	if isDeleted == false {
-		t.Fatalf("Entity could not be soft deleted")
-	}
+// 	if isDeleted == false {
+// 		t.Fatalf("Entity could not be soft deleted")
+// 	}
 
-	if store.EntityFindByID(entity.ID) != nil {
-		t.Fatalf("Entity should no longer be present")
-	}
-}
+// 	if store.EntityFindByID(entity.ID) != nil {
+// 		t.Fatalf("Entity should no longer be present")
+// 	}
+// }

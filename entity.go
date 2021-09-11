@@ -26,7 +26,7 @@ type Entity struct {
 	ID     string `db:"id"`
 	Status string `db:"status"`
 	Type   string `db:"type"`
-	Handle string `db:"column:name"`
+	Handle string `db:"name"`
 	//Name        string     `gorm:"type:varchar(255);column:name;DEFAULT NULL;"`
 	//Description string     `gorm:"type:longtext;column:description;"`
 	CreatedAt time.Time  `db:"created_at"`
