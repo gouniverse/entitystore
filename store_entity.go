@@ -55,41 +55,35 @@ func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 // EntityCreateWithAttributes func
 func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity {
 	// Note the use of tx as the database handle once you are within a transaction
-	tx := st.db.Begin()
+	tx, err := st.db.Begin()
+
+	if err != nil {
+		return nil
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 
-	if err := tx.Error; err != nil {
-		return nil
-	}
+	entity, err := st.EntityCreate(entityType)
 
-	//return tx.Commit().Error
-
-	entity := &Entity{Type: entityType, Status: EntityStatusActive, st: st}
-
-	dbResult := tx.Table(st.entityTableName).Create(&entity)
-
-	if dbResult.Error != nil {
+	if err != nil {
 		tx.Rollback()
 		return nil
 	}
 
-	//entityAttributes := make([]EntityAttribute, 0)
 	for k, v := range attributes {
-		ea := Attribute{EntityID: entity.ID, AttributeKey: k} //, AttributeValue: value}
-		ea.SetInterface(v)
+		_, err := st.AttributeCreateInterface(entity.ID, k, v)
 
-		dbResult2 := tx.Table(st.attributeTableName).Create(&ea)
-		if dbResult2.Error != nil {
+		if err != nil {
 			tx.Rollback()
 			return nil
 		}
 	}
 
-	err := tx.Commit().Error
+	err = tx.Commit()
 
 	if err != nil {
 		tx.Rollback()
