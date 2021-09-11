@@ -3,20 +3,24 @@ package entitystore
 import (
 	"errors"
 	"log"
+	"time"
 
+	"github.com/doug-martin/goqu/v9"
+	"github.com/gouniverse/uid"
 	"gorm.io/gorm"
 )
 
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
-	var newAttribute = Attribute{
-		ID:        uid.MicroUid(),
-		Key:       key,
-		Value:     value,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+	var newAttribute = &Attribute{
+		ID:             uid.MicroUid(),
+		AttributeKey:   attributeKey,
+		AttributeValue: attributeValue,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
-	sqlStr, _, _ = goqu.Insert(e.st.attributeTableName).Rows(newAttribute).ToSQL()
+
+	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(newAttribute).ToSQL()
 
 	log.Println(sqlStr)
 
@@ -24,24 +28,29 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 
 	if err != nil {
 		log.Println(err)
-		return false, err
+		return newAttribute, err
 	}
 
 	return newAttribute, nil
 }
 
 // AttributeCreateInterface creates a new attribute
-func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) *Attribute {
+func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
 	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey}
 	attr.SetInterface(attributeValue)
 
-	dbResult := st.db.Table(st.attributeTableName).Create(&attr)
+	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
 
-	if dbResult.Error != nil {
-		return nil
+	log.Println(sqlStr)
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return attr, err
 	}
 
-	return attr
+	return attr, nil
 }
 
 // AttributeFind finds an entity by ID
