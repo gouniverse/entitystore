@@ -73,25 +73,35 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute 
 }
 
 // AttributeSetFloat creates a new entity
-func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool {
+func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) (bool, error) {
 	attr := st.AttributeFind(entityID, attributeKey)
 
 	if attr == nil {
-		attr = st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
-		if attr != nil {
-			return true
+		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if err != nil {
+			return false, err
 		}
-		return false
+		if attr != nil {
+			return true, nil
+		}
+		return false, err
 	}
 
 	attr.SetFloat(attributeValue)
 
-	dbResult := st.db.Table(st.attributeTableName).Save(attr)
-	if dbResult.Error != nil {
-		return false
+	attr.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+
+	// log.Println(sqlStr)
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
 	}
 
-	return true
+	return true, nil
 }
 
 // AttributeSetInt creates a new entity
