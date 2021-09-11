@@ -2,12 +2,10 @@ package entitystore
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
-	"gorm.io/gorm"
 )
 
 // EntityAttributeList list all atributes of an entity
@@ -268,59 +266,89 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 }
 
 // EntityList lists entities
-func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity {
+func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
 	entityList := []Entity{}
 
-	result := st.db.Table(st.entityTableName).Where("type=?", entityType).Order(orderBy + " " + sort).Offset(int(offset)).Limit(int(perPage)).Find(&entityList)
+	// result := st.db.Table(st.entityTableName).Where("type=?", entityType).Order(orderBy + " " + sort).Offset(int(offset)).Limit(int(perPage)).Find(&entityList)
 
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil
+	// if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	// 	return nil
+	// }
+
+	// for k := range entityList {
+	// 	entityList[k].st = st
+	// }
+
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Where(goqu.C("deleted_at").IsNull()).Offset(uint(offset)).Limit(uint(perPage)).Select(Entity{}).ToSQL()
+
+	log.Println(sqlStr)
+
+	rows, err := st.db.Query(sqlStr)
+
+	if err != nil {
+		return entityList, err
 	}
 
-	for k := range entityList {
-		entityList[k].st = st
+	for rows.Next() {
+		var ent Entity
+		err := rows.Scan(&ent.CreatedAt, &ent.DeletedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+		if err != nil {
+			return entityList, err
+		}
+		entityList = append(entityList, ent)
 	}
 
-	return entityList
+	return entityList, nil
 }
 
 // EntityListByAttribute finds an entity by attribute
-func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) []Entity {
+func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) ([]Entity, error) {
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subQuery := st.db.Table(st.entityTableName).Model(&Entity{}).Select("id").Where("type = ?", entityType)
-	result := st.db.Table(st.attributeTableName).Model(&Attribute{}).Select("entity_id").Find(&entityIDs, "entity_id IN (?) AND attribute_key=? AND attribute_value=?", subQuery, attributeKey, attributeValue)
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Select("id").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue), goqu.C("deleted_at").IsNull()).Select("entity_id").ToSQL()
 
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil
+	log.Println(sqlStr)
+
+	rows, err := st.db.Query(sqlStr)
+
+	if err != nil {
+		return []Entity{}, err
 	}
 
-	if result.Error != nil {
-		log.Panic(result.Error)
+	for rows.Next() {
+		var entityID string
+		err := rows.Scan(&entityID)
+		if err != nil {
+			return []Entity{}, err
+		}
+		entityIDs = append(entityIDs, entityID)
 	}
-
-	// DEBUG: log.Println(result)
 
 	entityList := []Entity{}
 
-	resultEntity := st.db.Table(st.entityTableName).Where("id IN (?)", entityIDs).Find(&entityList)
+	sqlStr, _, _ = goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).Where(goqu.C("deleted_at").IsNull()).Select(Entity{}).ToSQL()
 
-	if errors.Is(resultEntity.Error, gorm.ErrRecordNotFound) {
-		return nil
+	log.Println(sqlStr)
+
+	rows, err = st.db.Query(sqlStr)
+
+	if err != nil {
+		return entityList, err
 	}
 
-	if resultEntity.Error != nil {
-		log.Panic(resultEntity.Error)
+	for rows.Next() {
+		var ent Entity
+		err := rows.Scan(&ent.CreatedAt, &ent.DeletedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+		if err != nil {
+			return entityList, err
+		}
+		ent.st = st
+		entityList = append(entityList, ent)
 	}
 
-	// DEBUG: log.Println(entity)
-
-	for k := range entityList {
-		entityList[k].st = st
-	}
-
-	return entityList
+	return entityList, nil
 }
 
 // EntityTrash moves an entity and all attributes to the trash bin
