@@ -2,12 +2,14 @@ package entitystore
 
 import (
 	//"encoding/json"
-	"errors"
+	"database/sql"
+
 	//"fmt"
 	"log"
 	//"strconv"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"github.com/gouniverse/uid"
 	"gorm.io/gorm"
 )
@@ -21,10 +23,10 @@ const (
 
 // Entity type
 type Entity struct {
-	ID      string `gorm:"type:varchar(40);column:id;primary_key;"`
-	Status  string `gorm:"type:varchar(10);column:status;"`
-	Type    string `gorm:"type:varchar(40);column:type;"`
-	Handle	string `gorm:"type:varchar(60);column:name;DEFAULT NULL;"`
+	ID     string `gorm:"type:varchar(40);column:id;primary_key;"`
+	Status string `gorm:"type:varchar(10);column:status;"`
+	Type   string `gorm:"type:varchar(40);column:type;"`
+	Handle string `gorm:"type:varchar(60);column:name;DEFAULT NULL;"`
 	//Name        string     `gorm:"type:varchar(255);column:name;DEFAULT NULL;"`
 	//Description string     `gorm:"type:longtext;column:description;"`
 	CreatedAt time.Time  `gorm:"type:datetime;column:created_at;DEFAULT NULL;"`
@@ -43,14 +45,14 @@ func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 // Delete deletes the entity
-func (e *Entity) Delete() bool {
-	return e.st.EntityDelete(e.ID)
-}
+// func (e *Entity) Delete() bool {
+// 	return e.st.EntityDelete(e.ID)
+// }
 
 // Trash moves the entity to the trash bin
-func (e *Entity) Trash() bool {
-	return e.st.EntityTrash(e.ID)
-}
+// func (e *Entity) Trash() bool {
+// 	return e.st.EntityTrash(e.ID)
+// }
 
 // GetAny the value of the attribute as interface{} or the default value if it does not exist
 func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) interface{} {
@@ -100,41 +102,54 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) string {
 func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 	attr := &Attribute{}
 
-	result := e.st.db.Table(e.st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", e.ID, attributeKey)
+	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
 
-	if result.Error != nil {
+	log.Println(sqlStr)
 
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	err := e.st.db.QueryRow(sqlStr).Scan(&attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.AttributeKey, &attr.AttributeValue, &attr.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil
 		}
-
-		log.Panic(result.Error)
+		log.Fatal("Failed to execute query: ", err)
+		return nil
 	}
+
+	// result := e.st.db.Table(e.st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", e.ID, attributeKey)
+
+	// if result.Error != nil {
+
+	// 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	// 		return nil
+	// 	}
+
+	// 	log.Panic(result.Error)
+	// }
 
 	return attr
 }
 
 // SetAllAny upserts the attributes
-func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
-	return e.st.AttributesSet(e.ID, attributes)
-}
+// func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
+// 	return e.st.AttributesSet(e.ID, attributes)
+// }
 
-// SetInterface sets an attribute with string value
-func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) bool {
-	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
-}
+// // SetInterface sets an attribute with string value
+// func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) bool {
+// 	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
+// }
 
-// SetFloat sets an attribute with float value
-func (e *Entity) SetFloat(attributeKey string, attributeValue float64) bool {
-	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
-}
+// // SetFloat sets an attribute with float value
+// func (e *Entity) SetFloat(attributeKey string, attributeValue float64) bool {
+// 	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
+// }
 
-// SetInt sets an attribute with int value
-func (e *Entity) SetInt(attributeKey string, attributeValue int64) bool {
-	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
-}
+// // SetInt sets an attribute with int value
+// func (e *Entity) SetInt(attributeKey string, attributeValue int64) bool {
+// 	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
+// }
 
-// SetString sets an attribute with string value
-func (e *Entity) SetString(attributeKey string, attributeValue string) bool {
-	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
-}
+// // SetString sets an attribute with string value
+// func (e *Entity) SetString(attributeKey string, attributeValue string) bool {
+// 	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
+// }
