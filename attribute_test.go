@@ -13,9 +13,9 @@ import (
 func TestAttributeCreate(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store := NewStore(WithGormDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	isOk := store.AttributeSetString("default", "hello", "world")
+	isOk, _ := store.AttributeSetString("default", "hello", "world")
 
 	if isOk == false {
 		t.Fatalf("Attribute could not be created")
@@ -25,9 +25,9 @@ func TestAttributeCreate(t *testing.T) {
 func TestAttributeString(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store := NewStore(WithGormDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	isOk := store.AttributeSetString("default", "hello", "world")
+	isOk, _ := store.AttributeSetString("default", "hello", "world")
 
 	if isOk == false {
 		t.Fatalf("Attribute could not be created")
@@ -47,9 +47,9 @@ func TestAttributeString(t *testing.T) {
 func TestAttributeInt(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store := NewStore(WithGormDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	isOk := store.AttributeSetInt("default", "test_int", 12)
+	isOk, _ := store.AttributeSetInt("default", "test_int", 12)
 
 	if isOk == false {
 		t.Fatalf("Attribute could not be created")
@@ -70,9 +70,9 @@ func TestAttributeInt(t *testing.T) {
 func TestAttributeFloat(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store := NewStore(WithGormDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	isOk := store.AttributeSetFloat("default", "test_float", 12.123456789123456789123456789)
+	isOk, _ := store.AttributeSetFloat("default", "test_float", 12.123456789123456789123456789)
 
 	if isOk == false {
 		t.Fatalf("Attribute could not be created")
@@ -93,9 +93,9 @@ func TestAttributeFloat(t *testing.T) {
 func TestAttributeInterface(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store := NewStore(WithGormDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	isOk := store.AttributeSetInterface("default", "test_interface", "Hello world")
+	isOk, _ := store.AttributeSetInterface("default", "test_interface", "Hello world")
 
 	if isOk == false {
 		t.Fatalf("Attribute could not be created")
@@ -109,7 +109,7 @@ func TestAttributeInterface(t *testing.T) {
 
 	//v,_:=attr.GetFloat()
 	v := attr.GetString()
-	log.Println(v);
+	log.Println(v)
 	// if v != 12.123456789123456789123456789 {
 	// 	t.Fatalf("Attribute value incorrect")
 	// }

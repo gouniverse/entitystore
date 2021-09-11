@@ -11,30 +11,29 @@ import (
 
 func TestEntityCreate(t *testing.T) {
 	db := InitDB("entity_create.db")
-	
-	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
+
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 	//  Init(Config{
 	// 	DbInstance: db,
 	// })
-	entity := store.EntityCreate("post")
-	if entity == nil{
+	entity, _ := store.EntityCreate("post")
+	if entity == nil {
 		t.Fatalf("Entity could not be created")
 	}
 }
 
 func TestEntityCreateWithAttributes(t *testing.T) {
 	db := InitDB("entity_update.db")
-	
-	
-	store := NewStore(WithGormDb(db),WithEntityTableName("cms_entity"),WithAttributeTableName("cms_attribute"),WithAutoMigrate(true))
-	
+
+	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+
 	// Init(Config{
 	// 	DbInstance: db,
 	// })
 	entity := store.EntityCreateWithAttributes("post", map[string]interface{}{
-		"name":"Hello world",
+		"name": "Hello world",
 	})
-	if entity == nil{
+	if entity == nil {
 		t.Fatalf("Entity could not be created")
 	}
 
@@ -45,15 +44,15 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 	// attr1 := entity.GetAttribute("name")
 	// log.Println(attr1)
 
-	if entity.GetAny("name","") != "Hello world"{
+	if entity.GetAny("name", "") != "Hello world" {
 		t.Fatalf("Entity attribute mismatch")
 	}
 
-	if store.AttributeFind(entity.ID,"name") == nil{
+	if store.AttributeFind(entity.ID, "name") == nil {
 		t.Fatalf("Attribute NOT FOUND")
 	}
 
-	if store.AttributeFind(entity.ID,"name").GetInterface() != "Hello world"{
+	if store.AttributeFind(entity.ID, "name").GetInterface() != "Hello world" {
 		t.Fatalf("Entity attribute mismatch")
 	}
 }

@@ -109,7 +109,12 @@ func (st *Store) EntityDelete(entityID string) bool {
 	}
 
 	// Note the use of tx as the database handle once you are within a transaction
-	tx := st.db.Begin()
+	tx, err := st.db.Begin()
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -117,24 +122,23 @@ func (st *Store) EntityDelete(entityID string) bool {
 		}
 	}()
 
-	if err := tx.Error; err != nil {
-		log.Println(err)
-		return false
-	}
+	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
 
-	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
+	if _, err := tx.Exec(sqlStr1); err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Delete(&Entity{}).Error; err != nil {
+	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+
+	if _, err := tx.Exec(sqlStr2); err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	err := tx.Commit().Error
+	err = tx.Commit()
 
 	if err == nil {
 		return true
