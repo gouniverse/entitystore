@@ -112,7 +112,7 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 	attr.SetFloat(attributeValue)
 
 	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
 	// log.Println(sqlStr)
 
@@ -147,7 +147,7 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 	attr.SetInt(attributeValue)
 
 	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
 	// log.Println(sqlStr)
 
@@ -183,7 +183,7 @@ func (st *Store) AttributeSetInterface(entityID string, attributeKey string, att
 	attr.SetInterface(attributeValue)
 
 	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
 	// log.Println(sqlStr)
 
@@ -218,7 +218,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 	attr.SetString(attributeValue)
 
 	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
 	// log.Println(sqlStr)
 
@@ -275,7 +275,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 		attr.SetInterface(v)
 		attr.UpdatedAt = time.Now()
-		sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+		sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
 		// log.Println(sqlStr)
 
