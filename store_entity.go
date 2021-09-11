@@ -10,21 +10,30 @@ import (
 )
 
 // EntityAttributeList list all atributes of an entity
-func (st *Store) EntityAttributeList(entityID string) []Attribute {
+func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	var attrs []Attribute
 
-	result := st.db.Table(st.attributeTableName).Find(&attrs, "entity_id=?", entityID)
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("attribute_key").Asc()).Where(goqu.C("entity_id").Eq(entityID)).Where(goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
 
-	if result.Error != nil {
+	log.Println(sqlStr)
 
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil
-		}
+	rows, err := st.db.Query(sqlStr)
 
-		log.Panic(result.Error)
+	if err != nil {
+		return attrs, err
 	}
 
-	return attrs
+	for rows.Next() {
+		var attr Attribute
+		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.UpdatedAt)
+		if err != nil {
+			return attrs, err
+		}
+		// settingList = append(settingList, value)
+		attrs = append(attrs, attr)
+	}
+
+	return attrs, nil
 }
 
 // EntityCount counts entities
