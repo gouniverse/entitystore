@@ -221,8 +221,14 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 			attr = &Attribute{EntityID: entityID, AttributeKey: k}
 			attr.SetInterface(v)
 
-			dbResult := tx.Table(st.attributeTableName).Create(&attr)
-			if dbResult.Error != nil {
+			sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
+
+			log.Println(sqlStr)
+
+			_, err := tx.Exec(sqlStr)
+
+			if err != nil {
+				log.Println(err)
 				tx.Rollback()
 				return false
 			}
@@ -235,7 +241,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 		// log.Println(sqlStr)
 
-		_, err := st.db.Exec(sqlStr)
+		_, err := tx.Exec(sqlStr)
 
 		if err != nil {
 			log.Println(err)
