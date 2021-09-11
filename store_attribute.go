@@ -35,7 +35,7 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 
 // AttributeCreateInterface creates a new attribute
 func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
-	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey}
+	attr := &Attribute{EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	attr.SetInterface(attributeValue)
 
 	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
@@ -53,28 +53,31 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 }
 
 // AttributeFind finds an entity by ID
-func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute {
+func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
 
 	log.Println(sqlStr)
 
-	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.UpdatedAt)
+	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil
+			return nil, err
 		}
-		log.Fatal("Failed to execute query: ", err)
-		return nil
+		return nil, err
 	}
 
-	return attr
+	return attr, nil
 }
 
 // AttributeSetFloat creates a new entity
 func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) (bool, error) {
-	attr := st.AttributeFind(entityID, attributeKey)
+	attr, err := st.AttributeFind(entityID, attributeKey)
+
+	if err != nil {
+		return false, err
+	}
 
 	if attr == nil {
 		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
@@ -94,7 +97,7 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 
 	// log.Println(sqlStr)
 
-	_, err := st.db.Exec(sqlStr)
+	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
 		log.Println(err)
@@ -106,7 +109,11 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 
 // AttributeSetInt creates a new entity
 func (st *Store) AttributeSetInt(entityID string, attributeKey string, attributeValue int64) (bool, error) {
-	attr := st.AttributeFind(entityID, attributeKey)
+	attr, err := st.AttributeFind(entityID, attributeKey)
+
+	if err != nil {
+		return false, err
+	}
 
 	if attr == nil {
 		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
@@ -126,7 +133,7 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 
 	// log.Println(sqlStr)
 
-	_, err := st.db.Exec(sqlStr)
+	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
 		log.Println(err)
@@ -138,7 +145,11 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 
 // AttributeSetInterface creates a new entity
 func (st *Store) AttributeSetInterface(entityID string, attributeKey string, attributeValue interface{}) (bool, error) {
-	attr := st.AttributeFind(entityID, attributeKey)
+	attr, err := st.AttributeFind(entityID, attributeKey)
+
+	if err != nil {
+		return false, err
+	}
 
 	if attr == nil {
 		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
@@ -158,7 +169,7 @@ func (st *Store) AttributeSetInterface(entityID string, attributeKey string, att
 
 	// log.Println(sqlStr)
 
-	_, err := st.db.Exec(sqlStr)
+	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
 		log.Println(err)
@@ -170,7 +181,11 @@ func (st *Store) AttributeSetInterface(entityID string, attributeKey string, att
 
 // AttributeSetString creates a new entity
 func (st *Store) AttributeSetString(entityID string, attributeKey string, attributeValue string) (bool, error) {
-	attr := st.AttributeFind(entityID, attributeKey)
+	attr, err := st.AttributeFind(entityID, attributeKey)
+
+	if err != nil {
+		return false, err
+	}
 
 	if attr == nil {
 		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
@@ -190,7 +205,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 
 	// log.Println(sqlStr)
 
-	_, err := st.db.Exec(sqlStr)
+	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
 		log.Println(err)
@@ -215,7 +230,13 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 	}()
 
 	for k, v := range attributes {
-		attr := st.AttributeFind(entityID, k)
+		attr, err := st.AttributeFind(entityID, k)
+
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
+			return false
+		}
 
 		if attr == nil {
 			attr = &Attribute{EntityID: entityID, AttributeKey: k}
@@ -241,7 +262,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 		// log.Println(sqlStr)
 
-		_, err := tx.Exec(sqlStr)
+		_, err = tx.Exec(sqlStr)
 
 		if err != nil {
 			log.Println(err)

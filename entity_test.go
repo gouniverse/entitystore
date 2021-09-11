@@ -48,11 +48,17 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 		t.Fatalf("Entity attribute mismatch")
 	}
 
-	if store.AttributeFind(entity.ID, "name") == nil {
+	attr, err := store.AttributeFind(entity.ID, "name")
+
+	if err == nil {
+		t.Fatalf("Attribute could not be retrieved" + err.Error())
+	}
+
+	if attr == nil {
 		t.Fatalf("Attribute NOT FOUND")
 	}
 
-	if store.AttributeFind(entity.ID, "name").GetInterface() != "Hello world" {
+	if attr.GetInterface() != "Hello world" {
 		t.Fatalf("Entity attribute mismatch")
 	}
 }

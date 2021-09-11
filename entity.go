@@ -23,18 +23,18 @@ const (
 
 // Entity type
 type Entity struct {
-	ID     string `gorm:"type:varchar(40);column:id;primary_key;"`
-	Status string `gorm:"type:varchar(10);column:status;"`
-	Type   string `gorm:"type:varchar(40);column:type;"`
-	Handle string `gorm:"type:varchar(60);column:name;DEFAULT NULL;"`
+	ID     string `db:"id"`
+	Status string `db:"status"`
+	Type   string `db:"type"`
+	Handle string `db:"column:name"`
 	//Name        string     `gorm:"type:varchar(255);column:name;DEFAULT NULL;"`
 	//Description string     `gorm:"type:longtext;column:description;"`
-	CreatedAt time.Time  `gorm:"type:datetime;column:created_at;DEFAULT NULL;"`
-	UpdatedAt time.Time  `gorm:"type:datetime;column:updated_at;DEFAULT NULL;"`
-	DeletedAt *time.Time `gorm:"type:datetime;column:deleted_at;DEFAULT NULL;"`
+	CreatedAt time.Time  `db:"created_at"`
+	UpdatedAt time.Time  `db:"updated_at"`
+	DeletedAt *time.Time `db:"deleted_at"`
 
-	attributes []Attribute `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	st         *Store      `gorm:-`
+	//attributes []Attribute `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	st *Store //`db:-`
 }
 
 // BeforeCreate adds UID to model

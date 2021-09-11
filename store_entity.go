@@ -24,7 +24,7 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 
 	for rows.Next() {
 		var attr Attribute
-		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.UpdatedAt)
+		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
 		if err != nil {
 			return attrs, err
 		}

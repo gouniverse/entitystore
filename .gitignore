@@ -13,3 +13,9 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+entity_create.db
+entity_update.db
+test_entity_create.db
+test_entity_automigrate.db
+test_entity_delete.db
+test_entity_trash.db
