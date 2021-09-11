@@ -1,32 +1,29 @@
 package entitystore
 
-import (
-	"testing"
-	//"database/sql"
-	// _ "github.com/mattn/go-sqlite3"
-	// "gorm.io/driver/sqlite"
-	// "gorm.io/gorm"
-)
+//"database/sql"
+// _ "github.com/mattn/go-sqlite3"
+// "gorm.io/driver/sqlite"
+// "gorm.io/gorm"
 
-func TestAttributeCreate(t *testing.T) {
-	db := InitDB("entity_create.db")
+// func TestAttributeCreate(t *testing.T) {
+// 	db := InitDB("entity_create.db")
 
-	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+// 	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
+// 	if err != nil {
+// 		t.Fatalf(err.Error())
+// 	}
 
-	isOk, err := store.AttributeSetString("default", "hello", "world")
+// 	isOk, err := store.AttributeSetString("default", "hello", "world")
 
-	if err != nil {
-		t.Fatalf("Attribute could not be created: " + err.Error())
-	}
+// 	if err != nil {
+// 		t.Fatalf("Attribute could not be created: " + err.Error())
+// 	}
 
-	if isOk == false {
-		t.Fatalf("Attribute could not be created")
-	}
-}
+// 	if isOk == false {
+// 		t.Fatalf("Attribute could not be created")
+// 	}
+// }
 
 // func TestAttributeString(t *testing.T) {
 // 	db := InitDB("entity_create.db")

@@ -21,7 +21,7 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 
 	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(newAttribute).ToSQL()
 
-	log.Println(sqlStr)
+	// log.Println(sqlStr)
 
 	_, err := st.db.Exec(sqlStr)
 
@@ -40,12 +40,11 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 
 	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
 
-	log.Println(sqlStr)
+	// log.Println(sqlStr)
 
 	_, err := st.db.Exec(sqlStr)
 
 	if err != nil {
-		log.Println(err)
 		return attr, err
 	}
 
@@ -58,7 +57,7 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
 
-	log.Println(sqlStr)
+	// log.Println(sqlStr)
 
 	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
 	if err != nil {
@@ -100,7 +99,6 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
-		log.Println(err)
 		return false, err
 	}
 
@@ -172,7 +170,6 @@ func (st *Store) AttributeSetInterface(entityID string, attributeKey string, att
 	_, err = st.db.Exec(sqlStr)
 
 	if err != nil {
-		log.Println(err)
 		return false, err
 	}
 
@@ -244,7 +241,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 			sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
 
-			log.Println(sqlStr)
+			// DEBUG: log.Println(sqlStr)
 
 			_, err := tx.Exec(sqlStr)
 

@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
-	"github.com/gouniverse/uid"
-	"gorm.io/gorm"
 )
 
 const (
@@ -38,11 +36,11 @@ type Entity struct {
 }
 
 // BeforeCreate adds UID to model
-func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
-	uuid := uid.HumanUid()
-	e.ID = uuid
-	return nil
-}
+// func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
+// 	uuid := uid.HumanUid()
+// 	e.ID = uuid
+// 	return nil
+// }
 
 // Delete deletes the entity
 // func (e *Entity) Delete() bool {
