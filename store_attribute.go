@@ -55,7 +55,7 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
 
 	// log.Println(sqlStr)
 
