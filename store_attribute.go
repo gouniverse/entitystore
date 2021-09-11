@@ -202,16 +202,17 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 
 // AttributesSet upserts and entity attribute
 func (st *Store) AttributesSet(entityID string, attributes map[string]interface{}) bool {
-	tx := st.db.Begin()
+	tx, err := st.db.Begin()
+
+	if err != nil {
+		return false
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
-
-	if err := tx.Error; err != nil {
-		return false
-	}
 
 	for k, v := range attributes {
 		attr := st.AttributeFind(entityID, k)
@@ -229,13 +230,21 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 		}
 
 		attr.SetInterface(v)
-		dbResult := tx.Table(st.attributeTableName).Save(attr)
-		if dbResult.Error != nil {
+		attr.UpdatedAt = time.Now()
+		sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+
+		// log.Println(sqlStr)
+
+		_, err := st.db.Exec(sqlStr)
+
+		if err != nil {
+			log.Println(err)
+			tx.Rollback()
 			return false
 		}
 	}
 
-	err := tx.Commit().Error
+	err = tx.Commit()
 
 	if err != nil {
 		tx.Rollback()
