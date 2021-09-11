@@ -1,13 +1,12 @@
 package entitystore
 
 import (
-	"errors"
+	"database/sql"
 	"log"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
 	"github.com/gouniverse/uid"
-	"gorm.io/gorm"
 )
 
 // AttributeCreate creates a new attribute
@@ -57,15 +56,17 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 func (st *Store) AttributeFind(entityID string, attributeKey string) *Attribute {
 	attr := &Attribute{}
 
-	result := st.db.Table(st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", entityID, attributeKey)
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
 
-	if result.Error != nil {
+	log.Println(sqlStr)
 
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
 			return nil
 		}
-
-		log.Panic(result.Error)
+		log.Fatal("Failed to execute query: ", err)
+		return nil
 	}
 
 	return attr
