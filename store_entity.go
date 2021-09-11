@@ -358,7 +358,7 @@ func (st *Store) EntityTrash(entityID string) bool {
 	}
 
 	// Note the use of tx as the database handle once you are within a transaction
-	tx := st.db.Begin()
+	tx, err := st.db.Begin()
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -366,7 +366,7 @@ func (st *Store) EntityTrash(entityID string) bool {
 		}
 	}()
 
-	if err := tx.Error; err != nil {
+	if err != nil {
 		log.Println(err)
 		return false
 	}
@@ -388,13 +388,21 @@ func (st *Store) EntityTrash(entityID string) bool {
 		DeletedAt: time.Now(),
 	}
 
-	if err := tx.Table(st.entityTrashTableName).Create(entTrash).Error; err != nil {
+	sqlStr, _, _ := goqu.Insert(st.entityTrashTableName).Rows(entTrash).ToSQL()
+
+	if _, err := tx.Exec(sqlStr); err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	attrs := st.EntityAttributeList(entityID)
+	attrs, err := st.EntityAttributeList(entityID)
+
+	if err != nil {
+		log.Println(err)
+		tx.Rollback()
+		return false
+	}
 
 	for _, attr := range attrs {
 		attrTrash := AttributeTrash{
@@ -407,26 +415,32 @@ func (st *Store) EntityTrash(entityID string) bool {
 			DeletedAt:      time.Now(),
 		}
 
-		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
+		sqlStrAttr, _, _ := goqu.Insert(st.attributeTrashTableName).Rows(attrTrash).ToSQL()
+
+		if _, err := tx.Exec(sqlStrAttr); err != nil {
 			tx.Rollback()
 			log.Println(err)
 			return false
 		}
 	}
 
-	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Delete(&Attribute{}).Error; err != nil {
+	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+
+	if _, err := tx.Exec(sqlStr1); err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Delete(&Entity{}).Error; err != nil {
+	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+
+	if _, err := tx.Exec(sqlStr2); err != nil {
 		tx.Rollback()
 		log.Println(err)
 		return false
 	}
 
-	err := tx.Commit().Error
+	err = tx.Commit()
 
 	if err == nil {
 		return true
