@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/doug-martin/goqu/v9"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +30,7 @@ func (st *Store) EntityAttributeList(entityID string) []Attribute {
 // EntityCount counts entities
 func (st *Store) EntityCount(entityType string) uint64 {
 	var count int64
-	st.db.Table(st.entityTableName).Where("type=?", entityType).Count(&count)
+	count, _ = goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Count()
 	return uint64(count)
 }
 
@@ -184,7 +185,7 @@ func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Ent
 	if entityType == "" {
 		return nil
 	}
-	
+
 	if entityHandle == "" {
 		return nil
 	}
@@ -323,7 +324,6 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	return entityList
 }
 
-
 // EntityTrash moves an entity and all attributes to the trash bin
 func (st *Store) EntityTrash(entityID string) bool {
 	if entityID == "" {
@@ -346,8 +346,8 @@ func (st *Store) EntityTrash(entityID string) bool {
 
 	ent := st.EntityFindByID(entityID)
 
-	if ent==nil{
-        tx.Rollback()
+	if ent == nil {
+		tx.Rollback()
 		log.Println("Entity not found")
 		return false
 	}
@@ -370,14 +370,14 @@ func (st *Store) EntityTrash(entityID string) bool {
 	attrs := st.EntityAttributeList(entityID)
 
 	for _, attr := range attrs {
-		attrTrash := AttributeTrash {
-			ID:        attr.ID,
-			EntityID:    attr.EntityID,
-			AttributeKey:    attr.AttributeKey,
-			AttributeValue:      attr.AttributeValue,
-			CreatedAt: attr.CreatedAt,
-			UpdatedAt: attr.UpdatedAt,
-			DeletedAt: time.Now(),
+		attrTrash := AttributeTrash{
+			ID:             attr.ID,
+			EntityID:       attr.EntityID,
+			AttributeKey:   attr.AttributeKey,
+			AttributeValue: attr.AttributeValue,
+			CreatedAt:      attr.CreatedAt,
+			UpdatedAt:      attr.UpdatedAt,
+			DeletedAt:      time.Now(),
 		}
 
 		if err := tx.Table(st.attributeTrashTableName).Create(attrTrash).Error; err != nil {
