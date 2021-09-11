@@ -59,12 +59,32 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 
 	// log.Println(sqlStr)
 
-	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
+	var createdAt string
+	var updatedAt string
+	var deletedAt *string
+
+	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &deletedAt, &attr.EntityID, &attr.ID, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, err
+	}
+
+	layout := "Mon Jan 02 2006 15:04:05 GMT-0700"
+	createdAtTime, err := time.Parse(layout, createdAt)
+	if err == nil {
+		attr.CreatedAt = createdAtTime
+	}
+	updatedAtTime, err := time.Parse(layout, updatedAt)
+	if err == nil {
+		attr.UpdatedAt = updatedAtTime
+	}
+	if deletedAt != nil {
+		deletedAtTime, err := time.Parse(layout, *deletedAt)
+		if err == nil {
+			attr.DeletedAt = &deletedAtTime
+		}
 	}
 
 	return attr, nil
@@ -185,29 +205,29 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 	}
 
 	if attr == nil {
-		// 	attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
-		// 	if err != nil {
-		// 		return false, err
-		// 	}
-		// 	if attr != nil {
-		// 		return true, nil
-		// 	}
-		// 	return false, err
+		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		if err != nil {
+			return false, err
+		}
+		if attr != nil {
+			return true, nil
+		}
+		return false, err
 	}
 
-	// attr.SetString(attributeValue)
+	attr.SetString(attributeValue)
 
-	// attr.UpdatedAt = time.Now()
-	// sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
+	attr.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Set(attr).ToSQL()
 
-	// // log.Println(sqlStr)
+	// log.Println(sqlStr)
 
-	// _, err = st.db.Exec(sqlStr)
+	_, err = st.db.Exec(sqlStr)
 
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return false, err
-	// }
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
 
 	return true, nil
 }

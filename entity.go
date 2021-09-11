@@ -100,11 +100,14 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) string {
 func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey), goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
+	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
 
-	log.Println(sqlStr)
+	// DEBUG: log.Println(sqlStr)
 
-	err := e.st.db.QueryRow(sqlStr).Scan(&attr.CreatedAt, &attr.DeletedAt, &attr.ID, &attr.AttributeKey, &attr.AttributeValue, &attr.UpdatedAt)
+	var createdAt string
+	var updatedAt string
+	var deletedAt *string
+	err := e.st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &deletedAt, &attr.EntityID, &attr.ID, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -113,16 +116,21 @@ func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 		return nil
 	}
 
-	// result := e.st.db.Table(e.st.attributeTableName).First(&attr, "entity_id=? AND attribute_key=?", e.ID, attributeKey)
-
-	// if result.Error != nil {
-
-	// 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-	// 		return nil
-	// 	}
-
-	// 	log.Panic(result.Error)
-	// }
+	layout := "Mon Jan 02 2006 15:04:05 GMT-0700"
+	createdAtTime, err := time.Parse(layout, createdAt)
+	if err == nil {
+		attr.CreatedAt = createdAtTime
+	}
+	updatedAtTime, err := time.Parse(layout, updatedAt)
+	if err == nil {
+		attr.UpdatedAt = updatedAtTime
+	}
+	if deletedAt != nil {
+		deletedAtTime, err := time.Parse(layout, *deletedAt)
+		if err == nil {
+			attr.DeletedAt = &deletedAtTime
+		}
+	}
 
 	return attr
 }
