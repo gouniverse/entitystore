@@ -162,9 +162,8 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		status varchar(10) NOT NULL,
 		type varchar(40) NOT NULL,
 		name varchar(60),
-		created_at datetime,
-		updated_at datetime,
-		deleted_at datetime
+		created_at datetime NOT NULL,
+		updated_at datetime NOT NULL
 	 );
 	`
 
@@ -174,9 +173,8 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		entity_id varchar(40) NOT NULL,
 		attribute_key varchar(255) NOT NULL,
 		attribute_value text,
-		created_at datetime,
-		updated_at datetime,
-		deleted_at datetime
+		created_at datetime NOT NULL,
+		updated_at datetime NOT NULL
 	);
 	`
 
@@ -186,9 +184,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		status varchar(10) NOT NULL,
 		type varchar(40) NOT NULL,
 		name varchar(60),
-		created_at datetime,
-		updated_at datetime,
-		deleted_at datetime,
+		created_at datetime NOT NULL,
+		updated_at datetime NOT NULL,
+		deleted_at datetime NOT NULL,
 		deleted_by varchar(40)
 	);
 	`
@@ -199,9 +197,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		entity_id varchar(40) NOT NULL,
 		attribute_key varchar(255) NOT NULL,
 		attribute_value text,
-		created_at datetime,
-		updated_at datetime,
-		deleted_at datetime,
+		created_at datetime NOT NULL,
+		updated_at datetime NOT NULL,
+		deleted_at datetime NOT NULL,
 		deleted_by varchar(40)
 	);
 	`
@@ -212,9 +210,8 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"entity_id" varchar(40) NOT NULL,
 		"attribute_key" varchar(255) NOT NULL,
 		"attribute_value" text,
-		"created_at" timestamptz(6),
-		"updated_at" timestamptz(6),
-		"deleted_at" timestamptz(6)
+		"created_at" timestamptz(6) NOT NULL,
+		"updated_at" timestamptz(6) NOT NULL
 	);
 	`
 
@@ -225,8 +222,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	   "type" varchar(40) NOT NULL,
 	   "name" varchar(60),
 	   "created_at" timestamptz(6),
-	   "updated_at" timestamptz(6),
-	   "deleted_at" timestamptz(6)
+	   "updated_at" timestamptz(6)
 	);
 	`
 
@@ -236,9 +232,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"status" varchar(10) NOT NULL,
 		"type" varchar(40) NOT NULL,
 		"name" varchar(60),
-		"created_at" timestamptz(6),
-		"updated_at" timestamptz(6),
-		"deleted_at" timestamptz(6),
+		"created_at" timestamptz(6) NOT NULL,
+		"updated_at" timestamptz(6) NOT NULL,
+		"deleted_at" timestamptz(6) NOT NULL,
 		"deleted_by" varchar(40)
 	);
 	`
@@ -249,9 +245,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"entity_id" varchar(40) NOT NULL,
 		"attribute_key" varchar(255) NOT NULL,
 		"attribute_value" text,
-		"created_at" timestamptz(6),
-		"updated_at" timestamptz(6),
-		"deleted_at" timestamptz(6),
+		"created_at" timestamptz(6) NOT NULL,
+		"updated_at" timestamptz(6) NOT NULL,
+		"deleted_at" timestamptz(6) NOT NULL,
 		"deleted_by" varchar(40)
 	);
 	`
@@ -262,9 +258,8 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"entity_id" varchar(40) NOT NULL,
 		"attribute_key" varchar(255) NOT NULL,
 		"attribute_value" text,
-		"created_at" datetime,
-		"updated_at" datetime,
-		"deleted_at" datetime
+		"created_at" datetime NOT NULL,
+		"updated_at" datetime NOT NULL
 	);
 	`
 	sqlSqlite2 := `
@@ -273,9 +268,8 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	   "status" varchar(10) NOT NULL,
 	   "type" varchar(40) NOT NULL,
 	   "name" varchar(60),
-	   "created_at" datetime,
-	   "updated_at" datetime,
-	   "deleted_at" datetime
+	   "created_at" datetime NOT NULL,
+	   "updated_at" datetime NOT NULL
 	);
 	`
 
@@ -285,9 +279,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"status" varchar(10) NOT NULL,
 		"type" varchar(40) NOT NULL,
 		"name" varchar(60),
-		"created_at" datetime,
-		"updated_at" datetime,
-		"deleted_at" datetime,
+		"created_at" datetime NOT NULL,
+		"updated_at" datetime NOT NULL,
+		"deleted_at" datetime NOT NULL,
 		"deleted_by" varchar(40)
 	);
 	`
@@ -298,9 +292,9 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"entity_id" varchar(40) NOT NULL,
 		"attribute_key" varchar(255) NOT NULL,
 		"attribute_value" text,
-		"created_at" datetime,
-		"updated_at" datetime,
-		"deleted_at" datetime,
+		"created_at" datetime NOT NULL,
+		"updated_at" datetime NOT NULL,
+		"deleted_at" datetime NOT NULL,
 		"deleted_by" varchar(40)
 	);
 	`
