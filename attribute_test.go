@@ -1,7 +1,6 @@
 package entitystore
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -117,41 +116,6 @@ func TestAttributeFloat(t *testing.T) {
 
 	v, _ := attr.GetFloat()
 	if v != 12.123456789123456789123456789 {
-		t.Fatalf("Attribute value incorrect")
-	}
-}
-
-func TestAttributeInterface(t *testing.T) {
-	db := InitDB("entity_create.db")
-
-	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
-
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	isOk, err := store.AttributeSetInterface("default", "test_interface", "Hello world")
-
-	if err != nil {
-		t.Fatalf("Attribute could not be created: " + err.Error())
-	}
-
-	if isOk == false {
-		t.Fatalf("Attribute could not be created")
-	}
-
-	attr, err := store.AttributeFind("default", "test_interface")
-
-	if err != nil {
-		t.Fatalf("Attribute could not be retrieved: " + err.Error())
-	}
-
-	if attr == nil {
-		t.Fatalf("Attribute could not be retrieved")
-	}
-
-	v := attr.GetString()
-	if strings.Compare(v, "Hello world") > 0 {
 		t.Fatalf("Attribute value incorrect")
 	}
 }

@@ -62,7 +62,7 @@ func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 }
 
 // EntityCreateWithAttributes func
-func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity {
+func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]string) *Entity {
 	// Note the use of tx as the database handle once you are within a transaction
 	tx, err := st.db.Begin()
 
@@ -84,7 +84,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 	}
 
 	for k, v := range attributes {
-		_, err := st.AttributeCreateInterface(entity.ID, k, v)
+		_, err := st.AttributeCreate(entity.ID, k, v)
 
 		if err != nil {
 			tx.Rollback()

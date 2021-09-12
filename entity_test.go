@@ -27,39 +27,15 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 
 	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
-	// Init(Config{
-	// 	DbInstance: db,
-	// })
-	entity := store.EntityCreateWithAttributes("post", map[string]interface{}{
+	entity := store.EntityCreateWithAttributes("post", map[string]string{
 		"name": "Hello world",
 	})
 	if entity == nil {
 		t.Fatalf("Entity could not be created")
 	}
 
-	// log.Println(entity)
-	// log.Println(entity.GetAttribute("name"))
-	// attribute := store.AttributeFind(entity.ID,"name")
-	// log.Println(attribute)
-	// attr1 := entity.GetAttribute("name")
-	// log.Println(attr1)
-
-	val, _ := entity.GetAny("name", "")
+	val, _ := entity.GetString("name", "")
 	if val != "Hello world" {
 		t.Fatalf("Entity attribute mismatch")
 	}
-
-	// attr, err := store.AttributeFind(entity.ID, "name")
-
-	// if err == nil {
-	// 	t.Fatalf("Attribute could not be retrieved" + err.Error())
-	// }
-
-	// if attr == nil {
-	// 	t.Fatalf("Attribute NOT FOUND")
-	// }
-
-	// if attr.GetInterface() != "Hello world" {
-	// 	t.Fatalf("Entity attribute mismatch")
-	// }
 }

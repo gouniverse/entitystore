@@ -46,24 +46,6 @@ type Entity struct {
 // 	return e.st.EntityTrash(e.ID)
 // }
 
-// GetAny the value of the attribute as interface{} or the default value if it does not exist
-func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) (interface{}, error) {
-	attr, err := e.GetAttribute(attributeKey)
-
-	if err != nil {
-		if e.st.GetDebug() {
-			log.Println(err)
-		}
-		return defaultValue, err
-	}
-
-	if attr == nil {
-		return defaultValue, nil
-	}
-
-	return attr.GetInterface(), nil
-}
-
 // GetInt the value of the attribute as string or the default value if it does not exist
 func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) {
 	attr, err := e.GetAttribute(attributeKey)
@@ -142,32 +124,23 @@ func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
 	}
 
 	layout := "Mon Jan 02 2006 15:04:05 GMT-0700"
+
 	createdAtTime, err := time.Parse(layout, createdAt)
 	if err == nil {
 		attr.CreatedAt = createdAtTime
 	}
+
 	updatedAtTime, err := time.Parse(layout, updatedAt)
 	if err == nil {
 		attr.UpdatedAt = updatedAtTime
 	}
-	// if deletedAt != nil {
-	// 	deletedAtTime, err := time.Parse(layout, *deletedAt)
-	// 	if err == nil {
-	// 		attr.DeletedAt = &deletedAtTime
-	// 	}
-	// }
 
 	return attr, nil
 }
 
-// SetAllAny upserts the attributes
-func (e *Entity) SetAllAny(attributes map[string]interface{}) (bool, error) {
+// SetAll upserts the attributes
+func (e *Entity) SetAll(attributes map[string]string) (bool, error) {
 	return e.st.AttributesSet(e.ID, attributes)
-}
-
-// SetInterface sets an attribute with string value
-func (e *Entity) SetInterface(attributeKey string, attributeValue interface{}) (bool, error) {
-	return e.st.AttributeSetInterface(e.ID, attributeKey, attributeValue)
 }
 
 // SetFloat sets an attribute with float value

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
@@ -24,12 +25,12 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 }
 
 // AttributeCreateInterface creates a new attribute
-func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
-	attr := &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	attr.SetInterface(attributeValue)
+// func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
+// 	attr := &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+// 	attr.SetInterface(attributeValue)
 
-	return st.AttributeInsert(*attr)
-}
+// 	return st.AttributeInsert(*attr)
+// }
 
 // AttributeFind finds an entity by ID
 func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
@@ -61,12 +62,6 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 	if err == nil {
 		attr.UpdatedAt = updatedAtTime
 	}
-	// if deletedAt != nil {
-	// 	deletedAtTime, err := time.Parse(layout, *deletedAt)
-	// 	if err == nil {
-	// 		attr.DeletedAt = &deletedAtTime
-	// 	}
-	// }
 
 	return attr, nil
 }
@@ -80,11 +75,12 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 	}
 
 	if attr == nil {
-		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		attributeValueAsString := strconv.FormatFloat(attributeValue, 'f', 30, 64)
+		isOk, err := st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
 		if err != nil {
 			return false, err
 		}
-		if attr != nil {
+		if isOk {
 			return true, nil
 		}
 		return false, err
@@ -104,41 +100,18 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 	}
 
 	if attr == nil {
-		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		attributeValueAsString := strconv.FormatInt(attributeValue, 10)
+		isOk, err := st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
 		if err != nil {
 			return false, err
 		}
-		if attr != nil {
+		if isOk {
 			return true, nil
 		}
 		return false, err
 	}
 
 	attr.SetInt(attributeValue)
-
-	return st.AttributeUpdate(*attr)
-}
-
-// AttributeSetInterface creates a new entity
-func (st *Store) AttributeSetInterface(entityID string, attributeKey string, attributeValue interface{}) (bool, error) {
-	attr, err := st.AttributeFind(entityID, attributeKey)
-
-	if err != nil {
-		return false, err
-	}
-
-	if attr == nil {
-		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
-		if err != nil {
-			return false, err
-		}
-		if attr != nil {
-			return true, nil
-		}
-		return false, err
-	}
-
-	attr.SetInterface(attributeValue)
 
 	return st.AttributeUpdate(*attr)
 }
@@ -168,7 +141,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 }
 
 // AttributesSet upserts and entity attribute
-func (st *Store) AttributesSet(entityID string, attributes map[string]interface{}) (bool, error) {
+func (st *Store) AttributesSet(entityID string, attributes map[string]string) (bool, error) {
 	tx, err := st.db.Begin()
 
 	if err != nil {

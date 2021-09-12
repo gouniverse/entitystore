@@ -19,3 +19,5 @@ test_entity_create.db
 test_entity_automigrate.db
 test_entity_delete.db
 test_entity_trash.db
+attribute.go
+test_attributes_create.db

@@ -16,18 +16,6 @@ type Attribute struct {
 	UpdatedAt      time.Time `db:"updated_at"`
 }
 
-// GetInterface de-serializes the values
-func (a *Attribute) GetInterface() interface{} {
-	var value interface{}
-	err := json.Unmarshal([]byte(a.AttributeValue), &value)
-
-	if err != nil {
-		panic("JSOB error unmarshaliibg Attribute" + err.Error())
-	}
-
-	return value
-}
-
 // GetInt returns the value as int
 func (a *Attribute) GetInt() (int64, error) {
 	return strconv.ParseInt(a.AttributeValue, 10, 64)
@@ -37,8 +25,6 @@ func (a *Attribute) GetInt() (int64, error) {
 func (a *Attribute) GetFloat() (float64, error) {
 	f64Value, err := strconv.ParseFloat(a.AttributeValue, 100)
 	return f64Value, err
-	//f64Value, err := strconv.ParseFloat(a.AttributeValue, 32)
-	//return float32(f64Value), err
 }
 
 // GetString returns the value as string
