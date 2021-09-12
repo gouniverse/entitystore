@@ -44,7 +44,8 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 	// attr1 := entity.GetAttribute("name")
 	// log.Println(attr1)
 
-	if entity.GetAny("name", "") != "Hello world" {
+	val, _ := entity.GetAny("name", "")
+	if val != "Hello world" {
 		t.Fatalf("Entity attribute mismatch")
 	}
 

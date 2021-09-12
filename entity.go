@@ -21,18 +21,12 @@ const (
 
 // Entity type
 type Entity struct {
-	ID     string `db:"id"`
-	Status string `db:"status"`
-	Type   string `db:"type"`
-	Handle string `db:"name"`
-	//Name        string     `gorm:"type:varchar(255);column:name;DEFAULT NULL;"`
-	//Description string     `gorm:"type:longtext;column:description;"`
-	CreatedAt time.Time  `db:"created_at"`
-	UpdatedAt time.Time  `db:"updated_at"`
-	DeletedAt *time.Time `db:"deleted_at"`
-
-	//attributes []Attribute `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	st *Store //`db:-`
+	ID        string    `db:"id"`
+	Status    string    `db:"status"`
+	Type      string    `db:"type"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+	st        *Store    //`db:-`
 }
 
 // BeforeCreate adds UID to model
@@ -53,19 +47,33 @@ type Entity struct {
 // }
 
 // GetAny the value of the attribute as interface{} or the default value if it does not exist
-func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) interface{} {
-	attr := e.GetAttribute(attributeKey)
+func (e *Entity) GetAny(attributeKey string, defaultValue interface{}) (interface{}, error) {
+	attr, err := e.GetAttribute(attributeKey)
 
-	if attr == nil {
-		return defaultValue
+	if err != nil {
+		if e.st.GetDebug() {
+			log.Println(err)
+		}
+		return defaultValue, err
 	}
 
-	return attr.GetInterface()
+	if attr == nil {
+		return defaultValue, nil
+	}
+
+	return attr.GetInterface(), nil
 }
 
 // GetInt the value of the attribute as string or the default value if it does not exist
 func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) {
-	attr := e.GetAttribute(attributeKey)
+	attr, err := e.GetAttribute(attributeKey)
+
+	if err != nil {
+		if e.st.GetDebug() {
+			log.Println(err)
+		}
+		return defaultValue, err
+	}
 
 	if attr == nil {
 		return defaultValue, nil
@@ -76,7 +84,14 @@ func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) 
 
 // GetFloat the value of the attribute as float or the default value if it does not exist
 func (e *Entity) GetFloat(attributeKey string, defaultValue float64) (float64, error) {
-	attr := e.GetAttribute(attributeKey)
+	attr, err := e.GetAttribute(attributeKey)
+
+	if err != nil {
+		if e.st.GetDebug() {
+			log.Println(err)
+		}
+		return defaultValue, err
+	}
 
 	if attr == nil {
 		return defaultValue, nil
@@ -86,23 +101,32 @@ func (e *Entity) GetFloat(attributeKey string, defaultValue float64) (float64, e
 }
 
 // GetString the value of the attribute as string or the default value if it does not exist
-func (e *Entity) GetString(attributeKey string, defaultValue string) string {
-	attr := e.GetAttribute(attributeKey)
+func (e *Entity) GetString(attributeKey string, defaultValue string) (string, error) {
+	attr, err := e.GetAttribute(attributeKey)
 
-	if attr == nil {
-		return defaultValue
+	if err != nil {
+		if e.st.GetDebug() {
+			log.Println(err)
+		}
+		return defaultValue, err
 	}
 
-	return attr.GetString()
+	if attr == nil {
+		return defaultValue, nil
+	}
+
+	return attr.GetString(), nil
 }
 
 // GetAttribute the name of the User table
-func (e *Entity) GetAttribute(attributeKey string) *Attribute {
+func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
 	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
 
-	// DEBUG: log.Println(sqlStr)
+	if e.st.GetDebug() {
+		log.Println(sqlStr)
+	}
 
 	var createdAt string
 	var updatedAt string
@@ -110,10 +134,12 @@ func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 	err := e.st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &deletedAt, &attr.EntityID, &attr.ID, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil
+			return nil, nil
 		}
-		log.Fatal("Failed to execute query: ", err)
-		return nil
+		if e.st.GetDebug() {
+			log.Println(err)
+		}
+		return nil, err
 	}
 
 	layout := "Mon Jan 02 2006 15:04:05 GMT-0700"
@@ -125,18 +151,18 @@ func (e *Entity) GetAttribute(attributeKey string) *Attribute {
 	if err == nil {
 		attr.UpdatedAt = updatedAtTime
 	}
-	if deletedAt != nil {
-		deletedAtTime, err := time.Parse(layout, *deletedAt)
-		if err == nil {
-			attr.DeletedAt = &deletedAtTime
-		}
-	}
+	// if deletedAt != nil {
+	// 	deletedAtTime, err := time.Parse(layout, *deletedAt)
+	// 	if err == nil {
+	// 		attr.DeletedAt = &deletedAtTime
+	// 	}
+	// }
 
-	return attr
+	return attr, nil
 }
 
 // SetAllAny upserts the attributes
-func (e *Entity) SetAllAny(attributes map[string]interface{}) bool {
+func (e *Entity) SetAllAny(attributes map[string]interface{}) (bool, error) {
 	return e.st.AttributesSet(e.ID, attributes)
 }
 

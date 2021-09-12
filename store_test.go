@@ -79,7 +79,13 @@ func TestStoreEntityDelete(t *testing.T) {
 		t.Fatalf("Entity could not be soft deleted")
 	}
 
-	if store.EntityFindByID(entity.ID) != nil {
+	val, err := store.EntityFindByID(entity.ID)
+
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if val != nil {
 		t.Fatalf("Entity should no longer be present")
 	}
 }
@@ -111,7 +117,13 @@ func TestStoreEntityTrash(t *testing.T) {
 		t.Fatalf("Entity could not be soft deleted")
 	}
 
-	if store.EntityFindByID(entity.ID) != nil {
+	val, err := store.EntityFindByID(entity.ID)
+
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if val != nil {
 		t.Fatalf("Entity should no longer be present")
 	}
 }

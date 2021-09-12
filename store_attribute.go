@@ -37,7 +37,9 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
 
-	// log.Println(sqlStr)
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
 
 	var createdAt string
 	var updatedAt string
@@ -167,16 +169,22 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 }
 
 // AttributesSet upserts and entity attribute
-func (st *Store) AttributesSet(entityID string, attributes map[string]interface{}) bool {
+func (st *Store) AttributesSet(entityID string, attributes map[string]interface{}) (bool, error) {
 	tx, err := st.db.Begin()
 
 	if err != nil {
-		return false
+		if st.GetDebug() {
+			log.Println(err)
+		}
+		return false, err
 	}
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
+			err = tx.Rollback()
+			if st.GetDebug() {
+				log.Println(err)
+			}
 		}
 	}()
 
@@ -184,52 +192,110 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 		attr, err := st.AttributeFind(entityID, k)
 
 		if err != nil {
-			log.Println(err)
-			tx.Rollback()
-			return false
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			err = tx.Rollback()
+
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			return false, err
 		}
 
 		if attr == nil {
 			attr = &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: k, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 			attr.SetInterface(v)
 
-			sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
+			sqlStr, _, err := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
 
-			// DEBUG: log.Println(sqlStr)
+			if err != nil {
+				if st.GetDebug() {
+					log.Println(err)
+				}
 
-			_, err := tx.Exec(sqlStr)
+				err = tx.Rollback()
+
+				if st.GetDebug() {
+					log.Println(err)
+				}
+
+				return false, err
+			}
+
+			if st.GetDebug() {
+				log.Println(sqlStr)
+			}
+
+			_, err = tx.Exec(sqlStr)
 
 			if err != nil {
 				log.Println(err)
-				tx.Rollback()
-				return false
+				err = tx.Rollback()
+
+				if st.GetDebug() {
+					log.Println(err)
+				}
+
+				return false, err
 			}
 
 		}
 
 		attr.SetInterface(v)
 		attr.UpdatedAt = time.Now()
-		sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
+		sqlStr, _, err := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
-		// log.Println(sqlStr)
+		if err != nil {
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			err = tx.Rollback()
+
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			return false, err
+		}
+
+		if st.GetDebug() {
+			log.Println(sqlStr)
+		}
 
 		_, err = tx.Exec(sqlStr)
 
 		if err != nil {
-			log.Println(err)
-			tx.Rollback()
-			return false
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			err = tx.Rollback()
+
+			if st.GetDebug() {
+				log.Println(err)
+			}
+
+			return false, err
 		}
 	}
 
 	err = tx.Commit()
 
 	if err != nil {
-		tx.Rollback()
-		return false
+		err = tx.Rollback()
+
+		if st.GetDebug() {
+			log.Println(err)
+		}
+
+		return false, err
 	}
 
-	return true
+	return true, nil
 
 }
 
