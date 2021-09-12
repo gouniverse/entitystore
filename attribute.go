@@ -1,7 +1,6 @@
 package entitystore
 
 import (
-	"encoding/json"
 	"strconv"
 	"time"
 )
@@ -47,17 +46,17 @@ func (a *Attribute) SetInt(value int64) bool {
 }
 
 // SetInterface serializes the values
-func (a *Attribute) SetInterface(value interface{}) bool {
-	bytes, err := json.Marshal(value)
+// func (a *Attribute) SetInterface(value interface{}) bool {
+// 	bytes, err := json.Marshal(value)
 
-	if err != nil {
-		return false
-	}
+// 	if err != nil {
+// 		return false
+// 	}
 
-	a.AttributeValue = string(bytes)
+// 	a.AttributeValue = string(bytes)
 
-	return true
-}
+// 	return true
+// }
 
 // SetString serializes the values
 func (a *Attribute) SetString(value string) bool {

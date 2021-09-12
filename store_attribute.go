@@ -15,6 +15,7 @@ import (
 func (st *Store) AttributeCreate(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
 	var newAttribute = &Attribute{
 		ID:             uid.HumanUid(),
+		EntityID:       entityID,
 		AttributeKey:   attributeKey,
 		AttributeValue: attributeValue,
 		CreatedAt:      time.Now(),
@@ -179,7 +180,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) (b
 
 		if attr == nil {
 			attr = &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: k, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-			attr.SetInterface(v)
+			attr.SetString(v)
 
 			sqlStr, _, err := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
 
@@ -216,7 +217,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) (b
 
 		}
 
-		attr.SetInterface(v)
+		attr.SetString(v)
 		attr.UpdatedAt = time.Now()
 		sqlStr, _, err := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
 
