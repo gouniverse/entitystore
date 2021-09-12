@@ -152,7 +152,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 	}
 
 	if attr == nil {
-		attr, err := st.AttributeCreateInterface(entityID, attributeKey, attributeValue)
+		attr, err := st.AttributeCreate(entityID, attributeKey, attributeValue)
 		if err != nil {
 			return false, err
 		}

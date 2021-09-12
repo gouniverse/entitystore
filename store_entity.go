@@ -236,7 +236,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
 	entityList := []Entity{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("created_at", "id", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("created_at", "id", "type", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
