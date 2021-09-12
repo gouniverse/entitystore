@@ -12,7 +12,7 @@ import (
 )
 
 func InitDB(filepath string) *sql.DB {
-	dsn := filepath + "?parseTime=true"
+	dsn := filepath
 	db, err := sql.Open("sqlite3", dsn)
 
 	if err != nil {

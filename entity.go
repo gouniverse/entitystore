@@ -122,7 +122,7 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) (string, er
 func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
 
 	if e.st.GetDebug() {
 		log.Println(sqlStr)
@@ -130,8 +130,7 @@ func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
 
 	var createdAt string
 	var updatedAt string
-	var deletedAt *string
-	err := e.st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &deletedAt, &attr.EntityID, &attr.ID, &updatedAt)
+	err := e.st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &attr.EntityID, &attr.ID, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

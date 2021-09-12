@@ -8,7 +8,7 @@ import (
 func TestAttributeCreate(t *testing.T) {
 	db := InitDB("entity_create.db")
 
-	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true), WithDebug(true))
 
 	if err != nil {
 		t.Fatalf(err.Error())

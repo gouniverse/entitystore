@@ -35,7 +35,7 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select("attribute_key", "attribute_value", "created_at", "deleted_at", "entity_id", "id", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -43,9 +43,8 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 
 	var createdAt string
 	var updatedAt string
-	var deletedAt *string
 
-	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &deletedAt, &attr.EntityID, &attr.ID, &updatedAt)
+	err := st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &attr.EntityID, &attr.ID, &updatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -62,12 +61,12 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 	if err == nil {
 		attr.UpdatedAt = updatedAtTime
 	}
-	if deletedAt != nil {
-		deletedAtTime, err := time.Parse(layout, *deletedAt)
-		if err == nil {
-			attr.DeletedAt = &deletedAtTime
-		}
-	}
+	// if deletedAt != nil {
+	// 	deletedAtTime, err := time.Parse(layout, *deletedAt)
+	// 	if err == nil {
+	// 		attr.DeletedAt = &deletedAtTime
+	// 	}
+	// }
 
 	return attr, nil
 }

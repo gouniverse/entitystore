@@ -14,7 +14,7 @@ import (
 func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	var attrs []Attribute
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("attribute_key").Asc()).Where(goqu.C("entity_id").Eq(entityID)).Where(goqu.C("deleted_at").IsNull()).Select(Attribute{}).ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("attribute_key").Asc()).Where(goqu.C("entity_id").Eq(entityID)).Select(Attribute{}).ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
@@ -26,7 +26,7 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 
 	for rows.Next() {
 		var attr Attribute
-		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.DeletedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
+		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
 		if err != nil {
 			return attrs, err
 		}
@@ -40,7 +40,7 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 // EntityCount counts entities
 func (st *Store) EntityCount(entityType string) uint64 {
 	var count int64
-	count, _ = goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Count()
+	count, _ = goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Count()
 	return uint64(count)
 }
 
@@ -122,7 +122,7 @@ func (st *Store) EntityDelete(entityID string) bool {
 		}
 	}()
 
-	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr1); err != nil {
 		tx.Rollback()
@@ -130,7 +130,7 @@ func (st *Store) EntityDelete(entityID string) bool {
 		return false
 	}
 
-	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr2); err != nil {
 		tx.Rollback()
@@ -149,49 +149,6 @@ func (st *Store) EntityDelete(entityID string) bool {
 	return false
 }
 
-// EntityDeleteSoft soft deletes an entity and all attributes
-// func (st *Store) EntityDeleteSoft(entityID string) bool {
-// 	if entityID == "" {
-// 		return false
-// 	}
-
-// 	// Note the use of tx as the database handle once you are within a transaction
-// 	tx := st.db.Begin()
-
-// 	defer func() {
-// 		if r := recover(); r != nil {
-// 			tx.Rollback()
-// 		}
-// 	}()
-
-// 	if err := tx.Error; err != nil {
-// 		log.Println(err)
-// 		return false
-// 	}
-
-// 	if err := tx.Where("entity_id=?", entityID).Table(st.attributeTableName).Update("deleted_at", time.Now()).Error; err != nil {
-// 		tx.Rollback()
-// 		log.Println(err)
-// 		return false
-// 	}
-
-// 	if err := tx.Where("id=?", entityID).Table(st.entityTableName).Update("deleted_at", time.Now()).Error; err != nil {
-// 		tx.Rollback()
-// 		log.Println(err)
-// 		return false
-// 	}
-
-// 	err := tx.Commit().Error
-
-// 	if err == nil {
-// 		return true
-// 	}
-
-// 	log.Println(err)
-
-// 	return false
-// }
-
 // EntityFindByHandle finds an entity by handle
 func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Entity {
 	if entityType == "" {
@@ -204,7 +161,7 @@ func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Ent
 
 	ent := &Entity{}
 
-	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType), goqu.C("entity_handle").Eq(entityHandle), goqu.C("deleted_at").IsNull()).Select("created_at", "ïd", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType), goqu.C("entity_handle").Eq(entityHandle)).Select("created_at", "ïd", "type", "updated_at").ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
@@ -230,7 +187,7 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 	ent := &Entity{}
 
-	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Select("created_at", "id", "status", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Select("created_at", "id", "status", "type", "updated_at").ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
@@ -252,8 +209,8 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Select("id").ToSQL()
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue), goqu.C("deleted_at").IsNull()).Select("entity_id").ToSQL()
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Select("id").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -279,7 +236,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
 	entityList := []Entity{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Where(goqu.C("deleted_at").IsNull()).Offset(uint(offset)).Limit(uint(perPage)).Select("created_at", "id", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("created_at", "id", "type", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -311,8 +268,8 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType), goqu.C("deleted_at").IsNull()).Select("id").ToSQL()
-	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue), goqu.C("deleted_at").IsNull()).Select("entity_id").ToSQL()
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Select("id").ToSQL()
+	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if err != nil {
 		if st.GetDebug() {
@@ -342,7 +299,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	entityList := []Entity{}
 
-	sqlStr, _, _ = goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).Where(goqu.C("deleted_at").IsNull()).Select("created_at", "id", "type", "updated_at").ToSQL()
+	sqlStr, _, _ = goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).Select("created_at", "id", "type", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -457,7 +414,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		}
 	}
 
-	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr1); err != nil {
 		if st.GetDebug() {
@@ -467,7 +424,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		return false, err
 	}
 
-	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID), goqu.C("deleted_at").IsNull()).Delete().ToSQL()
+	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr2); err != nil {
 		if st.GetDebug() {
