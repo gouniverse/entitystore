@@ -67,54 +67,16 @@ func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute
 	return attr, nil
 }
 
-// AttributeSetFloat creates a new entity
+// AttributeSetFloat creates a new attribute or updates existing
 func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) (bool, error) {
-	attr, err := st.AttributeFind(entityID, attributeKey)
-
-	if err != nil {
-		return false, err
-	}
-
-	if attr == nil {
-		attributeValueAsString := strconv.FormatFloat(attributeValue, 'f', 30, 64)
-		isOk, err := st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
-		if err != nil {
-			return false, err
-		}
-		if isOk {
-			return true, nil
-		}
-		return false, err
-	}
-
-	attr.SetFloat(attributeValue)
-
-	return st.AttributeUpdate(*attr)
+	attributeValueAsString := strconv.FormatFloat(attributeValue, 'f', 30, 64)
+	return st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
 }
 
-// AttributeSetInt creates a new entity
+// AttributeSetInt creates a new attribute or updates existing
 func (st *Store) AttributeSetInt(entityID string, attributeKey string, attributeValue int64) (bool, error) {
-	attr, err := st.AttributeFind(entityID, attributeKey)
-
-	if err != nil {
-		return false, err
-	}
-
-	if attr == nil {
-		attributeValueAsString := strconv.FormatInt(attributeValue, 10)
-		isOk, err := st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
-		if err != nil {
-			return false, err
-		}
-		if isOk {
-			return true, nil
-		}
-		return false, err
-	}
-
-	attr.SetInt(attributeValue)
-
-	return st.AttributeUpdate(*attr)
+	attributeValueAsString := strconv.FormatInt(attributeValue, 10)
+	return st.AttributeSetString(entityID, attributeKey, attributeValueAsString)
 }
 
 // AttributeSetString creates a new entity
