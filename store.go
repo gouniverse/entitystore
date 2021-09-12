@@ -23,6 +23,7 @@ type Store struct {
 	db                      *sql.DB
 	dbDriverName            string
 	automigrateEnabled      bool
+	debugEnabled            bool
 }
 
 // StoreOption options for the vault store
@@ -40,6 +41,13 @@ func WithDb(db *sql.DB) StoreOption {
 	return func(s *Store) {
 		s.db = db
 		s.dbDriverName = s.DriverName(s.db)
+	}
+}
+
+// WithDebug sets the debug on / off for the entity store
+func WithDebug(debugEnabled bool) StoreOption {
+	return func(s *Store) {
+		s.debugEnabled = debugEnabled
 	}
 }
 
@@ -112,6 +120,10 @@ func (st *Store) GetDB() *sql.DB {
 	return st.db
 }
 
+func (st *Store) GetDebug() bool {
+	return st.debugEnabled
+}
+
 func (st *Store) GetEntityTableName() string {
 	return st.entityTableName
 }
@@ -136,6 +148,10 @@ func (st *Store) DriverName(db *sql.DB) string {
 		return "mssql"
 	}
 	return driverFullName
+}
+
+func (st *Store) SetDebug(debugEnabled bool) {
+	st.debugEnabled = debugEnabled
 }
 
 func (st *Store) SqlCreateTable() ([]string, error) {

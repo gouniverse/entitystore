@@ -2,6 +2,7 @@ package entitystore
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"time"
 
@@ -19,18 +20,7 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 		UpdatedAt:      time.Now(),
 	}
 
-	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(newAttribute).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err := st.db.Exec(sqlStr)
-
-	if err != nil {
-		log.Println(err)
-		return newAttribute, err
-	}
-
-	return newAttribute, nil
+	return st.AttributeInsert(*newAttribute)
 }
 
 // AttributeCreateInterface creates a new attribute
@@ -38,17 +28,7 @@ func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, 
 	attr := &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	attr.SetInterface(attributeValue)
 
-	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err := st.db.Exec(sqlStr)
-
-	if err != nil {
-		return attr, err
-	}
-
-	return attr, nil
+	return st.AttributeInsert(*attr)
 }
 
 // AttributeFind finds an entity by ID
@@ -111,18 +91,7 @@ func (st *Store) AttributeSetFloat(entityID string, attributeKey string, attribu
 
 	attr.SetFloat(attributeValue)
 
-	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err = st.db.Exec(sqlStr)
-
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return st.AttributeUpdate(*attr)
 }
 
 // AttributeSetInt creates a new entity
@@ -146,19 +115,7 @@ func (st *Store) AttributeSetInt(entityID string, attributeKey string, attribute
 
 	attr.SetInt(attributeValue)
 
-	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err = st.db.Exec(sqlStr)
-
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-
-	return true, nil
+	return st.AttributeUpdate(*attr)
 }
 
 // AttributeSetInterface creates a new entity
@@ -182,18 +139,7 @@ func (st *Store) AttributeSetInterface(entityID string, attributeKey string, att
 
 	attr.SetInterface(attributeValue)
 
-	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err = st.db.Exec(sqlStr)
-
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return st.AttributeUpdate(*attr)
 }
 
 // AttributeSetString creates a new entity
@@ -217,19 +163,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 
 	attr.SetString(attributeValue)
 
-	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
-
-	// log.Println(sqlStr)
-
-	_, err = st.db.Exec(sqlStr)
-
-	if err != nil {
-		log.Println(err)
-		return false, err
-	}
-
-	return true, nil
+	return st.AttributeUpdate(*attr)
 }
 
 // AttributesSet upserts and entity attribute
@@ -297,4 +231,59 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]interface{
 
 	return true
 
+}
+
+// AttributeCreate creates a new attribute
+func (st *Store) AttributeInsert(attr Attribute) (*Attribute, error) {
+	if attr.AttributeKey == "" {
+		return nil, errors.New("attribute key is required field")
+	}
+	if attr.ID == "" {
+		attr.ID = uid.HumanUid()
+	}
+	if attr.CreatedAt.IsZero() {
+		attr.CreatedAt = time.Now()
+	}
+	if attr.UpdatedAt.IsZero() {
+		attr.UpdatedAt = time.Now()
+	}
+
+	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
+
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		if st.GetDebug() {
+			log.Println(err)
+		}
+		return nil, err
+	}
+
+	return &attr, nil
+}
+
+// AttributeSetString creates a new entity
+func (st *Store) AttributeUpdate(attr Attribute) (bool, error) {
+	attr.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
+
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		if st.GetDebug() {
+			log.Println(err)
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
