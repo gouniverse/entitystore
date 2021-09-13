@@ -5,7 +5,7 @@ import (
 )
 
 func TestAttributeCreate(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_attribute_create.db")
 
 	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true), WithDebug(true))
 
@@ -25,7 +25,7 @@ func TestAttributeCreate(t *testing.T) {
 }
 
 func TestAttributeString(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_attribute_string.db")
 
 	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
@@ -59,7 +59,7 @@ func TestAttributeString(t *testing.T) {
 }
 
 func TestAttributeInt(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_attribute_int.db")
 
 	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
@@ -94,7 +94,7 @@ func TestAttributeInt(t *testing.T) {
 }
 
 func TestAttributeFloat(t *testing.T) {
-	db := InitDB("entity_create.db")
+	db := InitDB("test_attribute_float.db")
 
 	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 

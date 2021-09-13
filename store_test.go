@@ -25,18 +25,16 @@ func InitDB(filepath string) *sql.DB {
 }
 
 func TestStoreCreate(t *testing.T) {
-	db := InitDB("test_entity_create.db")
+	db := InitDB("test_store_create.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
-
-	entity, err := store.EntityCreate("post")
+	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
 
 	if err != nil {
-		t.Fatalf("Entiry could not be created: " + err.Error())
+		t.Fatalf("Store could not be created: " + err.Error())
 	}
 
-	if entity == nil {
-		t.Fatalf("Entity could not be created")
+	if store == nil {
+		t.Fatalf("Store could not be created")
 	}
 }
 
