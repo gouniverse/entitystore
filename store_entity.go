@@ -68,12 +68,12 @@ func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (
 }
 
 // EntityCreateWithAttributes func
-func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]string) *Entity {
+func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]string) (*Entity, error) {
 	// Note the use of tx as the database handle once you are within a transaction
 	tx, err := st.db.Begin()
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	defer func() {
@@ -86,7 +86,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return nil, err
 	}
 
 	for k, v := range attributes {
@@ -94,7 +94,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 		if err != nil {
 			tx.Rollback()
-			return nil
+			return nil, err
 		}
 	}
 
@@ -102,10 +102,10 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	if err != nil {
 		tx.Rollback()
-		return nil
+		return nil, err
 	}
 
-	return entity
+	return entity, nil
 }
 
 // EntityDelete deletes an entity and all attributes
@@ -213,11 +213,11 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 	ent := &Entity{}
 
-	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Select("created_at", "id", "status", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at").ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
-	err := st.db.QueryRow(sqlStr).Scan(&ent.CreatedAt, &ent.ID, &ent.Status, &ent.Type, &ent.UpdatedAt)
+	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
