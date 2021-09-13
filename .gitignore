@@ -21,3 +21,4 @@ test_entity_delete.db
 test_entity_trash.db
 attribute.go
 test_attributes_create.db
+test_entity_update.db
