@@ -262,7 +262,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
 	entityList := []Entity{}
 
-	sqlStr, _, _ := goqu.From(st.entityTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("created_at", "id", "type", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -276,7 +276,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 
 	for rows.Next() {
 		var ent Entity
-		err := rows.Scan(&ent.CreatedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+		err := rows.Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 		if err != nil {
 			if st.GetDebug() {
 				log.Println(err)
@@ -326,7 +326,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	entityList := []Entity{}
 
-	sqlStr, _, _ = goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).Select("created_at", "id", "type", "updated_at").ToSQL()
+	sqlStr, _, _ = goqu.From(st.attributeTableName).Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -340,7 +340,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	for rows.Next() {
 		var ent Entity
-		err := rows.Scan(&ent.CreatedAt, &ent.ID, &ent.Type, &ent.UpdatedAt)
+		err := rows.Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 		if err != nil {
 			return entityList, err
 		}
