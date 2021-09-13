@@ -46,13 +46,19 @@ func (st *Store) EntityCount(entityType string) uint64 {
 
 // EntityCreate creates a new entity
 func (st *Store) EntityCreate(entityType string) (*Entity, error) {
+	return st.entityCreateWithTransactionOrDB(st.db, entityType)
+}
+
+func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (*Entity, error) {
 	entity := &Entity{ID: uid.HumanUid(), Type: entityType, Status: "active", CreatedAt: time.Now(), UpdatedAt: time.Now(), st: st}
 
 	sqlStr, _, _ := goqu.Insert(st.entityTableName).Rows(entity).ToSQL()
 
-	// DEBUG: log.Println(sqlStr)
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
 
-	_, err := st.db.Exec(sqlStr)
+	_, err := db.Exec(sqlStr)
 
 	if err != nil {
 		return entity, err
@@ -76,7 +82,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 		}
 	}()
 
-	entity, err := st.EntityCreate(entityType)
+	entity, err := st.entityCreateWithTransactionOrDB(tx, entityType)
 
 	if err != nil {
 		tx.Rollback()
@@ -84,7 +90,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 	}
 
 	for k, v := range attributes {
-		_, err := st.AttributeCreate(entity.ID, k, v)
+		_, err := st.attributeCreateWithTransactionOrDB(tx, entity.ID, k, v)
 
 		if err != nil {
 			tx.Rollback()
@@ -103,50 +109,70 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 }
 
 // EntityDelete deletes an entity and all attributes
-func (st *Store) EntityDelete(entityID string) bool {
+func (st *Store) EntityDelete(entityID string) (bool, error) {
 	if entityID == "" {
-		return false
+		if st.GetDebug() {
+			log.Println("in EntityDelete entity ID cannot be empty")
+		}
+		return false, errors.New("in EntityDelete entity ID cannot be empty")
 	}
 
 	// Note the use of tx as the database handle once you are within a transaction
 	tx, err := st.db.Begin()
 
 	if err != nil {
-		log.Println(err)
-		return false
+		if st.GetDebug() {
+			log.Println(err)
+		}
+		return false, err
 	}
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
+			txErr := tx.Rollback()
+			if txErr != nil && st.GetDebug() {
+				log.Println(txErr)
+			}
 		}
 	}()
 
 	sqlStr1, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr1); err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
+		if st.GetDebug() {
+			log.Println(err)
+		}
+		txErr := tx.Rollback()
+		if txErr != nil && st.GetDebug() {
+			log.Println(txErr)
+		}
+		return false, err
 	}
 
 	sqlStr2, _, _ := goqu.From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Delete().ToSQL()
 
 	if _, err := tx.Exec(sqlStr2); err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
+		if st.GetDebug() {
+			log.Println(err)
+		}
+		txErr := tx.Rollback()
+		if txErr != nil && st.GetDebug() {
+			log.Println(txErr)
+		}
+		return false, err
 	}
 
 	err = tx.Commit()
 
-	if err == nil {
-		return true
+	if err != nil {
+		if st.GetDebug() {
+			log.Println(err)
+		}
+
+		return false, err
 	}
 
-	log.Println(err)
-
-	return false
+	return true, nil
 }
 
 // EntityFindByHandle finds an entity by handle
@@ -257,6 +283,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 			}
 			return entityList, err
 		}
+		ent.st = st // Important
 		entityList = append(entityList, ent)
 	}
 
@@ -317,7 +344,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 		if err != nil {
 			return entityList, err
 		}
-		ent.st = st
+		ent.st = st // Important
 		entityList = append(entityList, ent)
 	}
 

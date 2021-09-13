@@ -25,6 +25,19 @@ func (st *Store) AttributeCreate(entityID string, attributeKey string, attribute
 	return st.AttributeInsert(*newAttribute)
 }
 
+func (st *Store) attributeCreateWithTransactionOrDB(db txOrDB, entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
+	var newAttribute = &Attribute{
+		ID:             uid.HumanUid(),
+		EntityID:       entityID,
+		AttributeKey:   attributeKey,
+		AttributeValue: attributeValue,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+
+	return st.attributeInsertWithTransactionOrDB(db, *newAttribute)
+}
+
 // AttributeCreateInterface creates a new attribute
 // func (st *Store) AttributeCreateInterface(entityID string, attributeKey string, attributeValue interface{}) (*Attribute, error) {
 // 	attr := &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: attributeKey, CreatedAt: time.Now(), UpdatedAt: time.Now()}
@@ -236,6 +249,10 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) (b
 
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeInsert(attr Attribute) (*Attribute, error) {
+	return st.attributeInsertWithTransactionOrDB(st.db, attr)
+}
+
+func (st *Store) attributeInsertWithTransactionOrDB(db txOrDB, attr Attribute) (*Attribute, error) {
 	if attr.AttributeKey == "" {
 		return nil, errors.New("attribute key is required field")
 	}
@@ -255,7 +272,7 @@ func (st *Store) AttributeInsert(attr Attribute) (*Attribute, error) {
 		log.Println(sqlStr)
 	}
 
-	_, err := st.db.Exec(sqlStr)
+	_, err := db.Exec(sqlStr)
 
 	if err != nil {
 		if st.GetDebug() {

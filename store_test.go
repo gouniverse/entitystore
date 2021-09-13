@@ -73,7 +73,11 @@ func TestStoreEntityDelete(t *testing.T) {
 
 	entity.SetString("title", "Hello world")
 
-	isDeleted := store.EntityDelete(entity.ID)
+	isDeleted, err := store.EntityDelete(entity.ID)
+
+	if err != nil {
+		t.Fatalf("Entity could not be soft deleted: " + err.Error())
+	}
 
 	if isDeleted == false {
 		t.Fatalf("Entity could not be soft deleted")
