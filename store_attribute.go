@@ -50,7 +50,7 @@ func (st *Store) attributeCreateWithTransactionOrDB(db txOrDB, entityID string, 
 func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("attribute_key").Eq(attributeKey)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
