@@ -40,7 +40,7 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 // EntityCount counts entities
 func (st *Store) EntityCount(entityType string) uint64 {
 	var count int64
-	count, _ = goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Count()
+	count, _ = goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Count()
 	return uint64(count)
 }
 
@@ -235,7 +235,7 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Select("id").ToSQL()
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if st.GetDebug() {
@@ -262,7 +262,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
 	entityList := []Entity{}
 
-	sqlStr, _, _ := goqu.From(st.entityTableName).Order(goqu.I("id").Asc()).Where(goqu.C("type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at").ToSQL()
+	sqlStr, _, _ := goqu.From(st.entityTableName).Order(goqu.I("id").Asc()).Where(goqu.C("entity_type").Eq(entityType)).Offset(uint(offset)).Limit(uint(perPage)).Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -295,7 +295,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("type").Eq(entityType)).Select("id").ToSQL()
+	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
 	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if err != nil {
@@ -477,7 +477,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 // EntityUpdate updates an entity
 func (st *Store) EntityUpdate(ent Entity) (bool, error) {
 	ent.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.GetAttributeTableName()).Where(goqu.C("id").Eq(ent.ID)).Set(ent).ToSQL()
+	sqlStr, _, _ := goqu.Update(st.GetEntityTableName()).Where(goqu.C("id").Eq(ent.ID)).Set(ent).ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
