@@ -14,6 +14,7 @@ import (
 func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	var attrs []Attribute
 
+	
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("attribute_key").Asc()).Where(goqu.C("entity_id").Eq(entityID)).Select(Attribute{}).ToSQL()
 
 	// DEBUG: log.Println(sqlStr)

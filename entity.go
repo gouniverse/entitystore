@@ -1,15 +1,8 @@
 package entitystore
 
 import (
-	//"encoding/json"
-	"database/sql"
-
-	//"fmt"
 	"log"
-	//"strconv"
 	"time"
-
-	"github.com/doug-martin/goqu/v9"
 )
 
 const (
@@ -65,6 +58,16 @@ func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) 
 	return attr.GetInt()
 }
 
+// GetAttribute return specified attribute
+func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
+	return e.st.AttributeFind(e.ID, attributeKey)
+}
+
+// GetAttributes all the attributes of the entity
+func (e *Entity) GetAttributes(attributeKey string) ([]Attribute, error) {
+	return e.st.EntityAttributeList(e.ID)
+}
+
 // GetFloat the value of the attribute as float or the default value if it does not exist
 func (e *Entity) GetFloat(attributeKey string, defaultValue float64) (float64, error) {
 	attr, err := e.GetAttribute(attributeKey)
@@ -99,44 +102,6 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) (string, er
 	}
 
 	return attr.GetString(), nil
-}
-
-// GetAttribute the name of the User table
-func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
-	attr := &Attribute{}
-
-	sqlStr, _, _ := goqu.From(e.st.attributeTableName).Where(goqu.C("attribute_key").Eq(attributeKey)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
-
-	if e.st.GetDebug() {
-		log.Println(sqlStr)
-	}
-
-	var createdAt string
-	var updatedAt string
-	err := e.st.db.QueryRow(sqlStr).Scan(&attr.AttributeKey, &attr.AttributeValue, &createdAt, &attr.EntityID, &attr.ID, &updatedAt)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		if e.st.GetDebug() {
-			log.Println(err)
-		}
-		return nil, err
-	}
-
-	layout := "Mon Jan 02 2006 15:04:05 GMT-0700"
-
-	createdAtTime, err := time.Parse(layout, createdAt)
-	if err == nil {
-		attr.CreatedAt = createdAtTime
-	}
-
-	updatedAtTime, err := time.Parse(layout, updatedAt)
-	if err == nil {
-		attr.UpdatedAt = updatedAtTime
-	}
-
-	return attr, nil
 }
 
 // SetAll upserts the attributes
