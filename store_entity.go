@@ -473,3 +473,25 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 
 	return false, err
 }
+
+// EntityUpdate updates an entity
+func (st *Store) EntityUpdate(ent Entity) (bool, error) {
+	ent.UpdatedAt = time.Now()
+	sqlStr, _, _ := goqu.Update(st.GetAttributeTableName()).Where(goqu.C("id").Eq(ent.ID)).Set(ent).ToSQL()
+
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
+
+	_, err := st.db.Exec(sqlStr)
+
+	if err != nil {
+		if st.GetDebug() {
+			log.Println(err)
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
