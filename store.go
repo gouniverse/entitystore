@@ -108,6 +108,12 @@ func (st *Store) AutoMigrate() error {
 	return nil
 }
 
+
+// EnableDebug - enables the debug option
+func (st *Store) EnableDebug(debug bool) {
+	st.debugEnabled = debug
+}
+
 func (st *Store) GetAttributeTableName() string {
 	return st.attributeTableName
 }
