@@ -1,15 +1,18 @@
 # Entity Store
 
-Saves data in relational (SQL) database in a "schemaless" way. A document database interface for relational databases, which uses an EAV implementation.
+Modern "schemales" storage using a relational (SQL) database. Document database interface for relational databases. 
 
 ## Features
 
+- Ultimate flexibility and convenience, no schema changes
+- Implemented via an EAV (entity-attribute-value) pattern to keep the relational structure and avoid blobs (JSON) fields
 - Single store can store unlimited number of entities of any type
 - Single store can store unlimited number of attributes for each entity
 - Multiple stores can be used to store specific types
 - Attributes can store any type of data - strings, integers, floating point numbers, any interfaces
 - 99% of required storage functionality provided out of the box
 - Full SQL available for more sophisticated cases - reporting, diagrams, etc.
+- Supports soft deletes via separate trash bin tables
 
 ## Installation
 ```
