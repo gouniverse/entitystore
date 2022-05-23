@@ -7,7 +7,7 @@ Saves data in relational (SQL) database in a "schemaless" way. A document databa
 - Single store can store unlimited number of entities of any type
 - Single store can store unlimited number of attributes for each entity
 - Multiple stores can be used to store specific types
-- Attributes can store any type of data - strings, integers, floating point numbers, any intefaces
+- Attributes can store any type of data - strings, integers, floating point numbers, any interfaces
 - 99% of required storage functionality provided out of the box
 - Full SQL available for more sophisticated cases - reporting, diagrams, etc.
 
