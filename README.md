@@ -1,6 +1,6 @@
 # Entity Store
 
-Saves data in SQL database in a "schemaless" way.
+Saves data in relational (SQL) database in a "schemaless" way. A document database interface for relational databases, which uses an EAV implementation.
 
 ## Features
 
@@ -8,7 +8,6 @@ Saves data in SQL database in a "schemaless" way.
 - Single store can store unlimited number of attributes for each entity
 - Multiple stores can be used to store specific types
 - Attributes can store any type of data - strings, integers, floating point numbers, any intefaces
-- Uses GORM to provide database drivers (SQLite, MySQL, etc)
 - 99% of required storage functionality provided out of the box
 - Full SQL available for more sophisticated cases - reporting, diagrams, etc.
 
