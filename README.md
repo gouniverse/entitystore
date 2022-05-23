@@ -102,3 +102,6 @@ These methods may be subject to change
 - SetInt(value int64) bool - saves a int value
 - SetInterface(value interface{}) bool - serializes the interface to JSON string and saves it
 - SetString(value string) bool - saves a string value
+
+## Similar Packages
+- https://github.com/sebastienros/yessql (.NET)
