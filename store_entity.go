@@ -10,7 +10,7 @@ import (
 	"github.com/gouniverse/uid"
 )
 
-// EntityAttributeList list all atributes of an entity
+// EntityAttributeList list all attributes of an entity
 func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	var attrs []Attribute
 
@@ -237,7 +237,7 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
 	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -297,7 +297,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	var entityIDs []string
 
 	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
-	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("atribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if err != nil {
 		if st.GetDebug() {
