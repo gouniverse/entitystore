@@ -14,7 +14,6 @@ import (
 func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	var attrs []Attribute
 
-	
 	sqlStr, _, _ := goqu.From(st.attributeTableName).Order(goqu.I("attribute_key").Asc()).Where(goqu.C("entity_id").Eq(entityID)).Select(Attribute{}).ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
@@ -236,8 +235,8 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	subquery := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id")
+	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subquery), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -296,8 +295,8 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subqueryStr, _, _ := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id").ToSQL()
-	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subqueryStr), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	subquery := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id")
+	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subquery), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
 
 	if err != nil {
 		if st.GetDebug() {
