@@ -235,9 +235,13 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
-	subquery := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id")
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subquery), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	q := goqu.From(st.attributeTableName)
+	q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")}))
+	q = q.Where(goqu.C("entity_type").Eq(entityType))
+	q = q.Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)))
+	q = q.Select("entity_id")
 
+	sqlStr, _, _ := q.ToSQL()
 	if st.GetDebug() {
 		log.Println(sqlStr)
 	}
@@ -295,8 +299,16 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	subquery := goqu.From(st.entityTableName).Where(goqu.C("entity_type").Eq(entityType)).Select("id")
-	sqlStr, _, err := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").In(subquery), goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)).Select("entity_id").ToSQL()
+	q := goqu.From(st.attributeTableName)
+	q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")}))
+	q = q.Where(goqu.C("entity_type").Eq(entityType))
+	q = q.Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)))
+	q = q.Select("entity_id")
+
+	sqlStr, _, err := q.ToSQL()
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
 
 	if err != nil {
 		if st.GetDebug() {
