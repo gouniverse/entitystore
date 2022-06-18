@@ -50,7 +50,10 @@ func (st *Store) attributeCreateWithTransactionOrDB(db txOrDB, entityID string, 
 func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	attr := &Attribute{}
 
-	sqlStr, _, _ := goqu.From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID), goqu.C("attribute_key").Eq(attributeKey)).Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at").ToSQL()
+	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
+	q = q.Where(goqu.C("entity_id").Eq(entityID), goqu.C("attribute_key").Eq(attributeKey))
+	q = q.Select("attribute_key", "attribute_value", "created_at", "entity_id", "id", "updated_at")
+	sqlStr, _, _ := q.ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -157,7 +160,9 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) (b
 			attr = &Attribute{ID: uid.HumanUid(), EntityID: entityID, AttributeKey: k, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 			attr.SetString(v)
 
-			sqlStr, _, err := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
+			q := goqu.Dialect(st.dbDriverName).Insert(st.attributeTableName)
+			q = q.Rows(attr)
+			sqlStr, _, err := q.ToSQL()
 
 			if err != nil {
 				if st.GetDebug() {
@@ -194,7 +199,12 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) (b
 
 		attr.SetString(v)
 		attr.UpdatedAt = time.Now()
-		sqlStr, _, err := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
+
+		q := goqu.Dialect(st.dbDriverName).Update(st.attributeTableName)
+		q = q.Where(goqu.C("id").Eq(attr.ID))
+		q = q.Set(attr)
+
+		sqlStr, _, err := q.ToSQL()
 
 		if err != nil {
 			if st.GetDebug() {
@@ -266,7 +276,9 @@ func (st *Store) attributeInsertWithTransactionOrDB(db txOrDB, attr Attribute) (
 		attr.UpdatedAt = time.Now()
 	}
 
-	sqlStr, _, _ := goqu.Insert(st.attributeTableName).Rows(attr).ToSQL()
+	q := goqu.Dialect(st.dbDriverName).Insert(st.attributeTableName)
+	q = q.Rows(attr)
+	sqlStr, _, _ := q.ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -284,10 +296,15 @@ func (st *Store) attributeInsertWithTransactionOrDB(db txOrDB, attr Attribute) (
 	return &attr, nil
 }
 
-// AttributeSetString creates a new entity
+// AttributeUpdate updates an attribute
 func (st *Store) AttributeUpdate(attr Attribute) (bool, error) {
 	attr.UpdatedAt = time.Now()
-	sqlStr, _, _ := goqu.Update(st.attributeTableName).Where(goqu.C("id").Eq(attr.ID)).Set(attr).ToSQL()
+
+	q := goqu.Dialect(st.dbDriverName).Update(st.attributeTableName)
+	q = q.Where(goqu.C("id").Eq(attr.ID))
+	q = q.Set(attr)
+
+	sqlStr, _, _ := q.ToSQL()
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
