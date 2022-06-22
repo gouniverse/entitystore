@@ -42,15 +42,43 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	return attrs, nil
 }
 
+// EntityCount counts the entities of a specified type
 // EntityCount counts entities
-func (st *Store) EntityCount(entityType string) uint64 {
+func (st *Store) EntityCount(entityType string) (int64, error) {
 	var count int64
 
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 	q = q.Where(goqu.C("entity_type").Eq(entityType))
+	q = q.Select(goqu.COUNT("*").As("count"))
 
-	count, _ = q.Count()
-	return uint64(count)
+	sqlStr, _, err := q.ToSQL()
+
+	if err != nil {
+		if st.GetDebug() {
+			log.Println(err)
+		}
+
+		return 0, err
+	}
+
+	if st.GetDebug() {
+		log.Println(sqlStr)
+	}
+
+	errScan := st.db.QueryRow(sqlStr).Scan(&count)
+
+	if errScan != nil {
+		if st.GetDebug() {
+			log.Println(errScan)
+		}
+
+		if errScan == sql.ErrNoRows {
+			return 0, errScan
+		}
+		return 0, errScan
+	}
+
+	return count, nil
 }
 
 // EntityCreate creates a new entity
