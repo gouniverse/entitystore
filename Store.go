@@ -160,7 +160,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		id varchar(40) NOT NULL PRIMARY KEY,
 		entity_status varchar(10) NOT NULL,
 		entity_type varchar(40) NOT NULL,
-		entity_handle varchar(60),
+		entity_handle varchar(60) DEFAULT '',
 		created_at datetime NOT NULL,
 		updated_at datetime NOT NULL
 	 );
@@ -182,7 +182,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		id varchar(40) NOT NULL PRIMARY KEY,
 		entity_status varchar(10) NOT NULL,
 		entity_type varchar(40) NOT NULL,
-		entity_handle varchar(60),
+		entity_handle varchar(60) DEFAULT '',
 		created_at datetime NOT NULL,
 		updated_at datetime NOT NULL,
 		deleted_at datetime NOT NULL,
@@ -219,7 +219,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	   "id" varchar(40) NOT NULL PRIMARY KEY,
 	   "entity_status" varchar(10) NOT NULL,
 	   "entity_type" varchar(40) NOT NULL,
-	   "entity_handle" varchar(60),
+	   "entity_handle" varchar(60) DEFAULT '',
 	   "created_at" timestamptz(6),
 	   "updated_at" timestamptz(6)
 	);
@@ -230,7 +230,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"id" varchar(40) NOT NULL PRIMARY KEY,
 		"entity_status" varchar(10) NOT NULL,
 		"entity_type" varchar(40) NOT NULL,
-		"entity_handle" varchar(60),
+		"entity_handle" varchar(60) DEFAULT '',
 		"created_at" timestamptz(6) NOT NULL,
 		"updated_at" timestamptz(6) NOT NULL,
 		"deleted_at" timestamptz(6) NOT NULL,
@@ -266,7 +266,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	   "id" varchar(40) NOT NULL PRIMARY KEY,
 	   "entity_status" varchar(10) NOT NULL,
 	   "entity_type" varchar(40) NOT NULL,
-	   "entity_handle" varchar(60),
+	   "entity_handle" varchar(60) DEFAULT '',
 	   "created_at" datetime NOT NULL,
 	   "updated_at" datetime NOT NULL
 	);
@@ -277,7 +277,7 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 		"id" varchar(40) NOT NULL PRIMARY KEY,
 		"entity_status" varchar(10) NOT NULL,
 		"entity_type" varchar(40) NOT NULL,
-		"entity_handle" varchar(60),
+		"entity_handle" varchar(60) DEFAULT '',
 		"created_at" datetime NOT NULL,
 		"updated_at" datetime NOT NULL,
 		"deleted_at" datetime NOT NULL,
