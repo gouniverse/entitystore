@@ -108,3 +108,4 @@ These methods may be subject to change
 ## Similar Packages
 - https://github.com/sebastienros/yessql (.NET)
 - https://github.com/laurent22/go-sqlkv (GO)
+- https://github.com/greensea/sqljsondb
