@@ -5,17 +5,9 @@ import (
 	"time"
 )
 
-const (
-	// EntityStatusActive entity "active" status
-	EntityStatusActive = "active"
-	// EntityStatusInactive entity "inactive" status
-	EntityStatusInactive = "inactive"
-)
-
 // Entity type
 type Entity struct {
 	ID        string    `db:"id"`
-	Status    string    `db:"entity_status"`
 	Type      string    `db:"entity_type"`
 	Handle    string    `db:"entity_handle"`
 	CreatedAt time.Time `db:"created_at"`

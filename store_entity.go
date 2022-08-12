@@ -87,7 +87,7 @@ func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 }
 
 func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (*Entity, error) {
-	entity := &Entity{ID: uid.HumanUid(), Type: entityType, Status: "active", CreatedAt: time.Now(), UpdatedAt: time.Now(), st: st}
+	entity := &Entity{ID: uid.HumanUid(), Type: entityType, CreatedAt: time.Now(), UpdatedAt: time.Now(), st: st}
 
 	q := goqu.Dialect(st.dbDriverName).Insert(st.entityTableName)
 	q = q.Rows(entity)
@@ -228,12 +228,12 @@ func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Ent
 
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 	q = q.Where(goqu.C("entity_type").Eq(entityType), goqu.C("entity_handle").Eq(entityHandle))
-	q = q.Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at")
+	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
 	sqlStr, _, _ := q.ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
-	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
+	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil
@@ -257,12 +257,12 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 	q = q.Where(goqu.C("id").Eq(entityID))
-	q = q.Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at")
+	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
 	sqlStr, _, _ := q.ToSQL()
 
 	// DEBUG: log.Println(sqlStr)
 
-	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
+	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -316,7 +316,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 	q = q.Where(goqu.C("entity_type").Eq(entityType))
 	q = q.Offset(uint(offset))
 	q = q.Limit(uint(perPage))
-	q = q.Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at")
+	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
 
 	sqlStr, _, _ := q.ToSQL()
 
@@ -332,7 +332,7 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 
 	for rows.Next() {
 		var ent Entity
-		err := rows.Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
+		err := rows.Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 		if err != nil {
 			if st.GetDebug() {
 				log.Println(err)
@@ -392,7 +392,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	q = goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
 	q = q.Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs))
-	q = q.Select("id", "entity_type", "entity_status", "entity_handle", "created_at", "updated_at")
+	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
 	sqlStr, _, _ = q.ToSQL()
 
 	if st.GetDebug() {
@@ -407,7 +407,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	for rows.Next() {
 		var ent Entity
-		err := rows.Scan(&ent.ID, &ent.Type, &ent.Status, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
+		err := rows.Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 		if err != nil {
 			return entityList, err
 		}
@@ -451,7 +451,6 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 
 	entTrash := EntityTrash{
 		ID:        ent.ID,
-		Status:    ent.Status,
 		Type:      ent.Type,
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,

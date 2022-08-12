@@ -101,7 +101,6 @@ func (st *Store) AutoMigrate() error {
 	return nil
 }
 
-
 // EnableDebug - enables the debug option
 func (st *Store) EnableDebug(debug bool) {
 	st.debugEnabled = debug
@@ -158,7 +157,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlMysql1 := `
 	CREATE TABLE IF NOT EXISTS ` + st.entityTableName + ` (
 		id varchar(40) NOT NULL PRIMARY KEY,
-		entity_status varchar(10) NOT NULL,
 		entity_type varchar(40) NOT NULL,
 		entity_handle varchar(60) DEFAULT '',
 		created_at datetime NOT NULL,
@@ -180,7 +178,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlMysql3 := `
 	CREATE TABLE IF NOT EXISTS ` + st.entityTrashTableName + ` (
 		id varchar(40) NOT NULL PRIMARY KEY,
-		entity_status varchar(10) NOT NULL,
 		entity_type varchar(40) NOT NULL,
 		entity_handle varchar(60) DEFAULT '',
 		created_at datetime NOT NULL,
@@ -217,7 +214,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlPostgres2 := `
 	CREATE TABLE IF NOT EXISTS ` + st.entityTableName + ` (
 	   "id" varchar(40) NOT NULL PRIMARY KEY,
-	   "entity_status" varchar(10) NOT NULL,
 	   "entity_type" varchar(40) NOT NULL,
 	   "entity_handle" varchar(60) DEFAULT '',
 	   "created_at" timestamptz(6),
@@ -228,7 +224,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlPostgres3 := `
 	CREATE TABLE IF NOT EXISTS ` + st.entityTrashTableName + ` (
 		"id" varchar(40) NOT NULL PRIMARY KEY,
-		"entity_status" varchar(10) NOT NULL,
 		"entity_type" varchar(40) NOT NULL,
 		"entity_handle" varchar(60) DEFAULT '',
 		"created_at" timestamptz(6) NOT NULL,
@@ -264,7 +259,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlSqlite2 := `
 	CREATE TABLE IF NOT EXISTS "` + st.entityTableName + `" (
 	   "id" varchar(40) NOT NULL PRIMARY KEY,
-	   "entity_status" varchar(10) NOT NULL,
 	   "entity_type" varchar(40) NOT NULL,
 	   "entity_handle" varchar(60) DEFAULT '',
 	   "created_at" datetime NOT NULL,
@@ -275,7 +269,6 @@ func (st *Store) SqlCreateTable() ([]string, error) {
 	sqlSqlite3 := `
 	CREATE TABLE IF NOT EXISTS "` + st.entityTrashTableName + `" (
 		"id" varchar(40) NOT NULL PRIMARY KEY,
-		"entity_status" varchar(10) NOT NULL,
 		"entity_type" varchar(40) NOT NULL,
 		"entity_handle" varchar(60) DEFAULT '',
 		"created_at" datetime NOT NULL,

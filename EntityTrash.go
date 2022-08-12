@@ -7,7 +7,6 @@ import (
 // EntityTrash type
 type EntityTrash struct {
 	ID        string    `db:"id"`
-	Status    string    `db:"entity_status"`
 	Type      string    `db:"entity_type"`
 	Handle    string    `db:"entity_handle"`
 	CreatedAt time.Time `db:"created_at"`
