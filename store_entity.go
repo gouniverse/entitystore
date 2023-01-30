@@ -348,19 +348,15 @@ func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, se
 
 // EntityListByAttribute finds an entity by attribute
 func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) ([]Entity, error) {
-	//entityAttributes := []EntityAttribute{}
 	var entityIDs []string
 
-	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
-	q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")}))
-	q = q.Where(goqu.C("entity_type").Eq(entityType))
-	q = q.Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)))
-	q = q.Select("entity_id")
+	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).
+		LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")})).
+		Where(goqu.C("entity_type").Eq(entityType)).
+		Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue))).
+		Select("entity_id")
 
 	sqlStr, _, err := q.ToSQL()
-	if st.GetDebug() {
-		log.Println(sqlStr)
-	}
 
 	if err != nil {
 		if st.GetDebug() {
@@ -390,9 +386,14 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	entityList := []Entity{}
 
-	q = goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
-	q = q.Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs))
-	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
+	if len(entityIDs) < 1 {
+		return entityList, nil
+	}
+
+	q = goqu.Dialect(st.dbDriverName).From(st.entityTableName).
+		Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).
+		Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
+
 	sqlStr, _, _ = q.ToSQL()
 
 	if st.GetDebug() {
