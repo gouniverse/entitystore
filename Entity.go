@@ -56,7 +56,7 @@ func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
 }
 
 // GetAttributes all the attributes of the entity
-func (e *Entity) GetAttributes(attributeKey string) ([]Attribute, error) {
+func (e *Entity) GetAttributes() ([]Attribute, error) {
 	return e.st.EntityAttributeList(e.ID)
 }
 
