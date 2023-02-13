@@ -13,7 +13,7 @@ import (
 )
 
 // EntityAttributeList list all attributes of an entity
-func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
+func (st *Store) EntityAttributeList(entityID string) (attributes []Attribute, err error) {
 	var attrs []Attribute
 
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
@@ -21,9 +21,15 @@ func (st *Store) EntityAttributeList(entityID string) ([]Attribute, error) {
 	q = q.Where(goqu.C("entity_id").Eq(entityID))
 	q = q.Select(Attribute{})
 
-	sqlStr, _, _ := q.ToSQL()
+	sqlStr, _, errSql := q.ToSQL()
 
-	// DEBUG: log.Println(sqlStr)
+	if errSql != nil {
+		return attributes, errSql
+	}
+
+	if st.debugEnabled {
+		log.Println(sqlStr)
+	}
 
 	rows, err := st.db.Query(sqlStr)
 

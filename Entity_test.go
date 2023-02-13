@@ -77,7 +77,7 @@ func TestEntityFindByAttribute(t *testing.T) {
 		t.Fatalf("Entity attribute mismatch")
 	}
 
-	store.SetDebug(true)
+	// store.SetDebug(true)
 
 	homePage, err := store.EntityFindByAttribute("post", "path", "/")
 
