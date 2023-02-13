@@ -125,33 +125,17 @@ func (a *Attribute) GetString() string {
 // SetFloat sets a float value
 func (a *Attribute) SetFloat(value float64) bool {
 	a.attributeValue = strconv.FormatFloat(value, 'f', 30, 64)
-
 	return true
 }
 
 // SetInt sets a int value
 func (a *Attribute) SetInt(value int64) bool {
 	a.attributeValue = strconv.FormatInt(value, 10)
-
 	return true
 }
-
-// SetInterface serializes the values
-// func (a *Attribute) SetInterface(value interface{}) bool {
-// 	bytes, err := json.Marshal(value)
-
-// 	if err != nil {
-// 		return false
-// 	}
-
-// 	a.AttributeValue = string(bytes)
-
-// 	return true
-// }
 
 // SetString serializes the values
 func (a *Attribute) SetString(value string) bool {
 	a.attributeValue = value
-
 	return true
 }

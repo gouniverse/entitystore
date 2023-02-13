@@ -91,31 +91,11 @@ func (e *Entity) SetUpdatedAt(updatedAt time.Time) *Entity {
 	return e
 }
 
-// BeforeCreate adds UID to model
-// func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
-// 	uuid := uid.HumanUid()
-// 	e.ID = uuid
-// 	return nil
-// }
-
-// Delete deletes the entity
-// func (e *Entity) Delete() bool {
-// 	return e.st.EntityDelete(e.ID)
-// }
-
-// Trash moves the entity to the trash bin
-// func (e *Entity) Trash() bool {
-// 	return e.st.EntityTrash(e.ID)
-// }
-
 // GetInt the value of the attribute as string or the default value if it does not exist
 func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) {
 	attr, err := e.GetAttribute(attributeKey)
 
 	if err != nil {
-		if e.st.GetDebug() {
-			log.Println(err)
-		}
 		return defaultValue, err
 	}
 
