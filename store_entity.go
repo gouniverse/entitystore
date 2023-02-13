@@ -1,12 +1,14 @@
 package entitystore
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"log"
 	"time"
 
 	"github.com/doug-martin/goqu/v9"
+	"github.com/georgysavva/scany/sqlscan"
 	"github.com/gouniverse/uid"
 )
 
@@ -87,11 +89,20 @@ func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 }
 
 func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (*Entity, error) {
-	entity := &Entity{ID: uid.HumanUid(), Type: entityType, CreatedAt: time.Now(), UpdatedAt: time.Now(), st: st}
+	entity := st.NewEntity(NewEntityOptions{
+		ID:        uid.HumanUid(),
+		Type:      entityType,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	})
 
 	q := goqu.Dialect(st.dbDriverName).Insert(st.entityTableName)
-	q = q.Rows(entity)
-	sqlStr, _, _ := q.ToSQL()
+	q = q.Rows(entity.ToMap())
+	sqlStr, _, errSql := q.ToSQL()
+
+	if errSql != nil {
+		return nil, errSql
+	}
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -129,7 +140,7 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 	}
 
 	for k, v := range attributes {
-		_, err := st.attributeCreateWithTransactionOrDB(tx, entity.ID, k, v)
+		_, err := st.attributeCreateWithTransactionOrDB(tx, entity.ID(), k, v)
 
 		if err != nil {
 			tx.Rollback()
@@ -215,67 +226,52 @@ func (st *Store) EntityDelete(entityID string) (bool, error) {
 }
 
 // EntityFindByHandle finds an entity by handle
-func (st *Store) EntityFindByHandle(entityType string, entityHandle string) *Entity {
+func (st *Store) EntityFindByHandle(entityType string, entityHandle string) (*Entity, error) {
 	if entityType == "" {
-		return nil
+		return nil, errors.New("entity type cannot be empty")
 	}
 
 	if entityHandle == "" {
-		return nil
+		return nil, errors.New("entity handle cannot be empty")
 	}
 
-	ent := &Entity{}
+	list, err := st.EntityList(EntityListQuery{
+		EntityType:   entityType,
+		EntityHandle: entityHandle,
+		Limit:        1,
+	})
 
-	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
-	q = q.Where(goqu.C("entity_type").Eq(entityType), goqu.C("entity_handle").Eq(entityHandle))
-	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
-	sqlStr, _, _ := q.ToSQL()
-
-	// DEBUG: log.Println(sqlStr)
-
-	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		}
-		log.Fatal("Failed to execute query: ", err)
-		return nil
+		return nil, err
 	}
 
-	ent.st = st // Add store reference
+	if len(list) > 0 {
+		return &list[0], nil
+	}
 
-	return ent
+	return nil, nil
 }
 
 // EntityFindByID finds an entity by ID
 func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 	if entityID == "" {
-		return nil, errors.New("entity ID cannot be emopty")
+		return nil, errors.New("entity ID cannot be empty")
 	}
 
-	ent := &Entity{}
+	list, err := st.EntityList(EntityListQuery{
+		ID:    entityID,
+		Limit: 1,
+	})
 
-	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
-	q = q.Where(goqu.C("id").Eq(entityID))
-	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
-	sqlStr, _, _ := q.ToSQL()
-
-	// DEBUG: log.Println(sqlStr)
-
-	err := st.db.QueryRow(sqlStr).Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
-		if st.GetDebug() {
-			log.Println(err)
-		}
 		return nil, err
 	}
 
-	ent.st = st // Add store reference
+	if len(list) > 0 {
+		return &list[0], nil
+	}
 
-	return ent, nil
+	return nil, nil
 }
 
 // EntityFindByAttribute finds an entity by attribute
@@ -307,47 +303,110 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 	return st.EntityFindByID(entityID)
 }
 
+type EntityListQuery struct {
+	ID           string
+	IDs          []string
+	EntityType   string
+	EntityHandle string
+	Limit        uint64
+	Offset       uint64
+	Search       string
+	SortBy       string
+	SortOrder    string // asc / dec
+	CountOnly    bool
+}
+
 // EntityList lists entities
-func (st *Store) EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) ([]Entity, error) {
-	entityList := []Entity{}
-
+func (st *Store) EntityList(options EntityListQuery) (entityList []Entity, err error) {
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
-	q = q.Order(goqu.I("id").Asc())
-	q = q.Where(goqu.C("entity_type").Eq(entityType))
-	q = q.Offset(uint(offset))
-	q = q.Limit(uint(perPage))
-	q = q.Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
 
-	sqlStr, _, _ := q.ToSQL()
+	if len(options.IDs) > 0 {
+		q = q.Where(goqu.C("id").In(options.IDs))
+	}
+
+	if options.ID != "" {
+		q = q.Where(goqu.C("id").Eq(options.ID))
+	}
+
+	sortByColumn := "id"
+	sortOrder := "asc"
+
+	if options.SortOrder != "" {
+		sortOrder = options.SortOrder
+	}
+
+	if options.SortBy != "" {
+		sortByColumn = options.SortBy
+	}
+
+	if sortOrder == "asc" {
+		q = q.Order(goqu.I(sortByColumn).Asc())
+	} else {
+		q = q.Order(goqu.I(sortByColumn).Desc())
+	}
+
+	if options.EntityType != "" {
+		q = q.Where(goqu.C("entity_type").Eq(options.EntityType))
+	}
+
+	if options.EntityHandle != "" {
+		q = q.Where(goqu.C("entity_handle").Eq(options.EntityType))
+	}
+
+	q = q.Offset(uint(options.Offset))
+
+	if options.Limit != 0 {
+		q = q.Limit(uint(options.Limit))
+	}
+
+	if !options.CountOnly {
+		if options.Limit > 0 {
+			q = q.Limit(uint(options.Limit))
+		}
+
+		if options.Offset > 0 {
+			q = q.Offset(uint(options.Offset))
+		}
+	}
+
+	q = q.Select()
+
+	sqlStr, _, errSql := q.ToSQL()
+
+	if errSql != nil {
+		return entityList, errSql
+	}
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
 	}
 
-	rows, err := st.db.Query(sqlStr)
+	entityMaps := []map[string]any{}
+	errScan := sqlscan.Select(context.Background(), st.db, &entityMaps, sqlStr)
+	if errScan != nil {
+		if errScan == sql.ErrNoRows {
+			// sqlscan does not use this anymore
+			return nil, errScan
+		}
 
-	if err != nil {
-		return entityList, err
+		if sqlscan.NotFound(errScan) {
+			return nil, nil
+		}
+
+		log.Println("FunnelStore. VisitorList. Error: ", err)
+		return nil, err
 	}
 
-	for rows.Next() {
-		var ent Entity
-		err := rows.Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
-		if err != nil {
-			if st.GetDebug() {
-				log.Println(err)
-			}
-			return entityList, err
-		}
-		ent.st = st // Important
-		entityList = append(entityList, ent)
+	for i := 0; i < len(entityMaps); i++ {
+		entity := st.FromMap(entityMaps[i])
+		entityList = append(entityList, *entity)
 	}
 
 	return entityList, nil
 }
 
 // EntityListByAttribute finds an entity by attribute
-func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) ([]Entity, error) {
+func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) (entityList []Entity, err error) {
 	var entityIDs []string
 
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).
@@ -384,39 +443,15 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 		entityIDs = append(entityIDs, entityID)
 	}
 
-	entityList := []Entity{}
-
 	if len(entityIDs) < 1 {
 		return entityList, nil
 	}
 
-	q = goqu.Dialect(st.dbDriverName).From(st.entityTableName).
-		Order(goqu.I("id").Asc()).Where(goqu.C("id").In(entityIDs)).
-		Select("id", "entity_type", "entity_handle", "created_at", "updated_at")
-
-	sqlStr, _, _ = q.ToSQL()
-
-	if st.GetDebug() {
-		log.Println(sqlStr)
-	}
-
-	rows, err = st.db.Query(sqlStr)
-
-	if err != nil {
-		return entityList, err
-	}
-
-	for rows.Next() {
-		var ent Entity
-		err := rows.Scan(&ent.ID, &ent.Type, &ent.Handle, &ent.CreatedAt, &ent.UpdatedAt)
-		if err != nil {
-			return entityList, err
-		}
-		ent.st = st // Important
-		entityList = append(entityList, ent)
-	}
-
-	return entityList, nil
+	return st.EntityList(EntityListQuery{
+		EntityType: entityType,
+		IDs:        entityIDs,
+		SortBy:     "id",
+	})
 }
 
 // EntityTrash moves an entity and all attributes to the trash bin
@@ -451,10 +486,10 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 	}
 
 	entTrash := EntityTrash{
-		ID:        ent.ID,
-		Type:      ent.Type,
-		CreatedAt: ent.CreatedAt,
-		UpdatedAt: ent.UpdatedAt,
+		ID:        ent.ID(),
+		Type:      ent.Type(),
+		CreatedAt: ent.CreatedAt(),
+		UpdatedAt: ent.UpdatedAt(),
 		DeletedAt: time.Now(),
 	}
 
@@ -549,10 +584,10 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 
 // EntityUpdate updates an entity
 func (st *Store) EntityUpdate(ent Entity) (bool, error) {
-	ent.UpdatedAt = time.Now()
+	ent.SetUpdatedAt(time.Now())
 
 	q := goqu.Dialect(st.dbDriverName).Update(st.GetEntityTableName())
-	q = q.Where(goqu.C("id").Eq(ent.ID)).Set(ent)
+	q = q.Where(goqu.C("id").Eq(ent.ID)).Set(ent.ToMap())
 
 	sqlStr, _, _ := q.ToSQL()
 

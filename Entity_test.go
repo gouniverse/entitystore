@@ -15,24 +15,24 @@ func TestEntityCreate(t *testing.T) {
 		t.Fatalf("Entity could not be created")
 	}
 
-	if len(entity.ID) < 32 {
-		t.Fatalf("Entity ID:" + entity.ID + "is less than 32 characters")
+	if len(entity.ID()) < 32 {
+		t.Fatalf("Entity ID:" + entity.ID() + "is less than 32 characters")
 	}
 
-	if entity.CreatedAt.Before(time.Now().Add(-1 * time.Minute)) {
-		t.Fatalf("Entity CreatedAt is not recent (before 1 min):" + entity.CreatedAt.String())
+	if entity.CreatedAt().Before(time.Now().Add(-1 * time.Minute)) {
+		t.Fatalf("Entity CreatedAt is not recent (before 1 min):" + entity.CreatedAt().String())
 	}
 
-	if entity.CreatedAt.After(time.Now().Add(1 * time.Minute)) {
-		t.Fatalf("Entity CreatedAt is not recent (after 1 min):" + entity.CreatedAt.String())
+	if entity.CreatedAt().After(time.Now().Add(1 * time.Minute)) {
+		t.Fatalf("Entity CreatedAt is not recent (after 1 min):" + entity.CreatedAt().String())
 	}
 
-	if entity.UpdatedAt.Before(time.Now().Add(-1 * time.Minute)) {
-		t.Fatalf("Entity UpdatedAt is not recent (before 1 min):" + entity.CreatedAt.String())
+	if entity.UpdatedAt().Before(time.Now().Add(-1 * time.Minute)) {
+		t.Fatalf("Entity UpdatedAt is not recent (before 1 min):" + entity.CreatedAt().String())
 	}
 
-	if entity.UpdatedAt.After(time.Now().Add(1 * time.Minute)) {
-		t.Fatalf("Entity UpdateddAt is not recent (after 1 min):" + entity.CreatedAt.String())
+	if entity.UpdatedAt().After(time.Now().Add(1 * time.Minute)) {
+		t.Fatalf("Entity UpdateddAt is not recent (after 1 min):" + entity.CreatedAt().String())
 	}
 }
 
@@ -46,7 +46,7 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 	})
 
 	if err != nil {
-		t.Fatalf("Entity could not be created" + err.Error())
+		t.Fatal("Entity could not be created:", err.Error())
 	}
 
 	if entity == nil {
@@ -77,7 +77,7 @@ func TestEntityFindByAttribute(t *testing.T) {
 		t.Fatalf("Entity attribute mismatch")
 	}
 
-	// store.SetDebug(true)
+	store.SetDebug(true)
 
 	homePage, err := store.EntityFindByAttribute("post", "path", "/")
 
@@ -107,7 +107,7 @@ func TestEntityDelete(t *testing.T) {
 
 	entity.SetString("title", "Hello world")
 
-	isDeleted, err := store.EntityDelete(entity.ID)
+	isDeleted, err := store.EntityDelete(entity.ID())
 
 	if err != nil {
 		t.Fatalf("Entity could not be soft deleted: " + err.Error())
@@ -117,7 +117,7 @@ func TestEntityDelete(t *testing.T) {
 		t.Fatalf("Entity could not be soft deleted")
 	}
 
-	val, err := store.EntityFindByID(entity.ID)
+	val, err := store.EntityFindByID(entity.ID())
 
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -146,7 +146,7 @@ func TestEntityTrash(t *testing.T) {
 		t.Fatalf("Entity could not be created")
 	}
 
-	attr, err := store.AttributeFind(entity.ID, "title")
+	attr, err := store.AttributeFind(entity.ID(), "title")
 
 	if err != nil {
 		t.Fatalf("Attribute could not be found: " + err.Error())
@@ -156,7 +156,7 @@ func TestEntityTrash(t *testing.T) {
 		t.Fatalf("Attribute should not be nil")
 	}
 
-	isDeleted, err := store.EntityTrash(entity.ID)
+	isDeleted, err := store.EntityTrash(entity.ID())
 
 	if err != nil {
 		t.Fatalf("Entiry could not be deleted: " + err.Error())
@@ -166,7 +166,7 @@ func TestEntityTrash(t *testing.T) {
 		t.Fatalf("Entity could not be soft deleted")
 	}
 
-	val, err := store.EntityFindByID(entity.ID)
+	val, err := store.EntityFindByID(entity.ID())
 
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -176,7 +176,7 @@ func TestEntityTrash(t *testing.T) {
 		t.Fatalf("Entity should no longer be present")
 	}
 
-	attr, err = store.AttributeFind(entity.ID, "title")
+	attr, err = store.AttributeFind(entity.ID(), "title")
 
 	if err != nil {
 		t.Fatalf("Attribute could not be found: " + err.Error())
@@ -208,7 +208,7 @@ func TestCreatingAttributes(t *testing.T) {
 	// entity.SetFloat("price_float", 12.35)
 	// entity.SetInt("price_int", 12)
 
-	store.AttributeSetString(entity.ID, "description", "Description text")
+	store.AttributeSetString(entity.ID(), "description", "Description text")
 
 	description, err := entity.GetString("description", "")
 
