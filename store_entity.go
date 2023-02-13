@@ -14,79 +14,47 @@ import (
 
 // EntityAttributeList list all attributes of an entity
 func (st *Store) EntityAttributeList(entityID string) (attributes []Attribute, err error) {
-	var attrs []Attribute
+	return st.AttributeList(AttributeListQuery{
+		EntityID: entityID,
+	})
+}
 
-	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
-	q = q.Order(goqu.I("attribute_key").Asc())
-	q = q.Where(goqu.C("entity_id").Eq(entityID))
-	q = q.Select(Attribute{})
+// EntityCount counts the entities of a specified type
+// EntityCount counts entities
+func (st *Store) EntityCount(options EntityQueryOptions) (int64, error) {
+	options.CountOnly = true
 
-	sqlStr, _, errSql := q.ToSQL()
+	q := st.EntityQuery(options)
+	sqlStr, _, errSql := q.Limit(1).Select(goqu.COUNT(goqu.Star()).As("count")).ToSQL()
 
 	if errSql != nil {
-		return attributes, errSql
+		return 0, errSql
 	}
 
 	if st.debugEnabled {
 		log.Println(sqlStr)
 	}
 
-	rows, err := st.db.Query(sqlStr)
-
-	if err != nil {
-		return attrs, err
+	type countResult struct {
+		Count int64 `db:"count"`
 	}
 
-	for rows.Next() {
-		var attr Attribute
-		err := rows.Scan(&attr.AttributeKey, &attr.AttributeValue, &attr.CreatedAt, &attr.EntityID, &attr.ID, &attr.UpdatedAt)
-		if err != nil {
-			return attrs, err
+	var result countResult
+	err := sqlscan.Get(context.Background(), st.db, &result, sqlStr)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// sqlscan does not use this anymore
+			return 0, err
 		}
-		// settingList = append(settingList, value)
-		attrs = append(attrs, attr)
-	}
 
-	return attrs, nil
-}
-
-// EntityCount counts the entities of a specified type
-// EntityCount counts entities
-func (st *Store) EntityCount(entityType string) (int64, error) {
-	var count int64
-
-	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
-	q = q.Where(goqu.C("entity_type").Eq(entityType))
-	q = q.Select(goqu.COUNT("*").As("count"))
-
-	sqlStr, _, err := q.ToSQL()
-
-	if err != nil {
-		if st.GetDebug() {
-			log.Println(err)
+		if sqlscan.NotFound(err) {
+			return 0, nil
 		}
 
 		return 0, err
 	}
 
-	if st.GetDebug() {
-		log.Println(sqlStr)
-	}
-
-	errScan := st.db.QueryRow(sqlStr).Scan(&count)
-
-	if errScan != nil {
-		if st.GetDebug() {
-			log.Println(errScan)
-		}
-
-		if errScan == sql.ErrNoRows {
-			return 0, errScan
-		}
-		return 0, errScan
-	}
-
-	return count, nil
+	return result.Count, nil
 }
 
 // EntityCreate creates a new entity
@@ -241,7 +209,7 @@ func (st *Store) EntityFindByHandle(entityType string, entityHandle string) (*En
 		return nil, errors.New("entity handle cannot be empty")
 	}
 
-	list, err := st.EntityList(EntityListQuery{
+	list, err := st.EntityList(EntityQueryOptions{
 		EntityType:   entityType,
 		EntityHandle: entityHandle,
 		Limit:        1,
@@ -264,7 +232,7 @@ func (st *Store) EntityFindByID(entityID string) (*Entity, error) {
 		return nil, errors.New("entity ID cannot be empty")
 	}
 
-	list, err := st.EntityList(EntityListQuery{
+	list, err := st.EntityList(EntityQueryOptions{
 		ID:    entityID,
 		Limit: 1,
 	})
@@ -309,7 +277,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 	return st.EntityFindByID(entityID)
 }
 
-type EntityListQuery struct {
+type EntityQueryOptions struct {
 	ID           string
 	IDs          []string
 	EntityType   string
@@ -322,8 +290,7 @@ type EntityListQuery struct {
 	CountOnly    bool
 }
 
-// EntityList lists entities
-func (st *Store) EntityList(options EntityListQuery) (entityList []Entity, err error) {
+func (st *Store) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 
 	if len(options.IDs) > 0 {
@@ -375,7 +342,12 @@ func (st *Store) EntityList(options EntityListQuery) (entityList []Entity, err e
 		}
 	}
 
-	q = q.Select()
+	return q.Select()
+}
+
+// EntityList lists entities
+func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, err error) {
+	q := st.EntityQuery(options)
 
 	sqlStr, _, errSql := q.ToSQL()
 
@@ -404,7 +376,7 @@ func (st *Store) EntityList(options EntityListQuery) (entityList []Entity, err e
 	}
 
 	for i := 0; i < len(entityMaps); i++ {
-		entity := st.FromMap(entityMaps[i])
+		entity := st.EntityFromMap(entityMaps[i])
 		entityList = append(entityList, *entity)
 	}
 
@@ -453,7 +425,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 		return entityList, nil
 	}
 
-	return st.EntityList(EntityListQuery{
+	return st.EntityList(EntityQueryOptions{
 		EntityType: entityType,
 		IDs:        entityIDs,
 		SortBy:     "id",
@@ -527,12 +499,12 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 
 	for _, attr := range attrs {
 		attrTrash := AttributeTrash{
-			ID:             attr.ID,
-			EntityID:       attr.EntityID,
-			AttributeKey:   attr.AttributeKey,
-			AttributeValue: attr.AttributeValue,
-			CreatedAt:      attr.CreatedAt,
-			UpdatedAt:      attr.UpdatedAt,
+			ID:             attr.ID(),
+			EntityID:       attr.EntityID(),
+			AttributeKey:   attr.AttributeKey(),
+			AttributeValue: attr.AttributeValue(),
+			CreatedAt:      attr.CreatedAt(),
+			UpdatedAt:      attr.UpdatedAt(),
 			DeletedAt:      time.Now(),
 		}
 

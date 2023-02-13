@@ -43,6 +43,8 @@ func TestAttributeString(t *testing.T) {
 		t.Fatalf("Attribute could not be created")
 	}
 
+	// store.EnableDebug(true)
+
 	attr, err := store.AttributeFind("default", "hello")
 
 	if err != nil {
@@ -54,7 +56,7 @@ func TestAttributeString(t *testing.T) {
 	}
 
 	if attr.GetString() != "world" {
-		t.Fatalf("Attribute value incorrect")
+		t.Fatal("Attribute value incorrect", "must be 'world'", "found", attr.GetString())
 	}
 }
 

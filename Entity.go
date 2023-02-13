@@ -25,7 +25,7 @@ func (e *Entity) ToMap() map[string]any {
 	return entry
 }
 
-func (st *Store) FromMap(entityMap map[string]any) *Entity {
+func (st *Store) EntityFromMap(entityMap map[string]any) *Entity {
 	opts := NewEntityOptions{}
 	if id, exists := entityMap["id"]; exists {
 		opts.ID = id.(string)
@@ -46,7 +46,7 @@ func (st *Store) FromMap(entityMap map[string]any) *Entity {
 	return entity
 }
 
-func (e Entity) ID() string {
+func (e *Entity) ID() string {
 	return e.id
 }
 
@@ -89,25 +89,6 @@ func (e *Entity) SetCreatedAt(createdAt time.Time) *Entity {
 func (e *Entity) SetUpdatedAt(updatedAt time.Time) *Entity {
 	e.updatedAt = updatedAt
 	return e
-}
-
-type NewEntityOptions struct {
-	ID        string
-	Type      string
-	Handle    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (st *Store) NewEntity(opts NewEntityOptions) *Entity {
-	entity := Entity{}
-	entity.SetID(opts.ID)
-	entity.SetType(opts.Type)
-	entity.SetHandle(opts.Handle)
-	entity.SetCreatedAt(opts.CreatedAt)
-	entity.SetUpdatedAt(opts.UpdatedAt)
-	entity.st = st
-	return &entity
 }
 
 // BeforeCreate adds UID to model
