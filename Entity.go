@@ -25,27 +25,6 @@ func (e *Entity) ToMap() map[string]any {
 	return entry
 }
 
-func (st *Store) EntityFromMap(entityMap map[string]any) *Entity {
-	opts := NewEntityOptions{}
-	if id, exists := entityMap["id"]; exists {
-		opts.ID = id.(string)
-	}
-	if entityType, exists := entityMap["entity_type"]; exists {
-		opts.Type = entityType.(string)
-	}
-	if entityHandle, exists := entityMap["entity_handle"]; exists {
-		opts.Handle = entityHandle.(string)
-	}
-	if createdAt, exists := entityMap["created_at"]; exists {
-		opts.CreatedAt = createdAt.(time.Time)
-	}
-	if updatedAt, exists := entityMap["updated_at"]; exists {
-		opts.UpdatedAt = updatedAt.(time.Time)
-	}
-	entity := st.NewEntity(opts)
-	return entity
-}
-
 func (e *Entity) ID() string {
 	return e.id
 }
@@ -153,21 +132,21 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) (string, er
 }
 
 // SetAll upserts the attributes
-func (e *Entity) SetAll(attributes map[string]string) (bool, error) {
+func (e *Entity) SetAll(attributes map[string]string) error {
 	return e.st.AttributesSet(e.ID(), attributes)
 }
 
 // SetFloat sets an attribute with float value
-func (e *Entity) SetFloat(attributeKey string, attributeValue float64) (bool, error) {
+func (e *Entity) SetFloat(attributeKey string, attributeValue float64) error {
 	return e.st.AttributeSetFloat(e.ID(), attributeKey, attributeValue)
 }
 
 // SetInt sets an attribute with int value
-func (e *Entity) SetInt(attributeKey string, attributeValue int64) (bool, error) {
+func (e *Entity) SetInt(attributeKey string, attributeValue int64) error {
 	return e.st.AttributeSetInt(e.ID(), attributeKey, attributeValue)
 }
 
 // SetString sets an attribute with string value
-func (e *Entity) SetString(attributeKey string, attributeValue string) (bool, error) {
+func (e *Entity) SetString(attributeKey string, attributeValue string) error {
 	return e.st.AttributeSetString(e.ID(), attributeKey, attributeValue)
 }
