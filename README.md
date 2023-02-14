@@ -21,7 +21,12 @@ go get -u github.com/gouniverse/entitystore
 ## Setup
 
 ```
-entityStore = entitystore.NewStore(entitystore.WithGormDb(databaseInstance), entitystore.WithEntityTableName("entities_entity"), entitystore.WithAttributeTableName("entities_attribute"), entitystore.WithAutoMigrate(true))
+entityStore, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "entities_entity",
+		AttributeTableName: "entities_attribute",
+		AutomigrateEnabled: true,
+	})
 ```
 
 ## Usage
@@ -38,7 +43,7 @@ person.SetInterface("kids", []string{"Tina","Sam"})
 2. Retrieve an entity
 ```
 personID := "{THE PERSON ID}"
-person := entityStore.EntityFind(personID)
+person := entityStore.EntityFindByID(personID)
 person.GetString("name")
 person.GetInt("age")
 person.GetFloat("salary")
@@ -59,16 +64,15 @@ These methods may be subject to change
 
 - AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
 - AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
-- AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) bool - upserts a new float attribute
-- AttributeSetInt(entityID string, attributeKey string, attributeValue int64) bool -  upserts a new int attribute
-- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new interface{} attribute
-- AttributeSetString(entityID string, attributeKey string, attributeValue string) bool -  upserts a new string attribute
+- AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) error - upserts a new float attribute
+- AttributeSetInt(entityID string, attributeKey string, attributeValue int64) error -  upserts a new int attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) error -  upserts a new interface{} attribute
+- AttributeSetString(entityID string, attributeKey string, attributeValue string) error -  upserts a new string attribute
 - AutoMigrate() - auto migrate
 - EntityCount(entityType string) uint64 - counts entities
 - EntityCreate(entityType string) *Entity - creates a new entity
 - EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity
 - EntityDelete(entityID string) - deletes an entity and all attributes
-- (DEPERECATED) EntityDeleteSoft(entityID string) - soft deletes an entity and all attributes (DEPERECATED)
 - EntityFindByID(entityID string) *Entity - finds an entity by ID
 - EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity - finds an entity by attribute
 - EntityList(entityType string, offset uint64, perPage uint64, search string, orderBy string, sort string) []Entity - lists entities
@@ -76,7 +80,7 @@ These methods may be subject to change
 - EntityTrash(entityID string) - moves an entity and all its attributes to the trash bin
 - GetAttributeTableName() string
 - GetAttributeTrashTableName() string
-- GetDB() *gorm.DB
+- GetDB() *sql.DB
 - GetEntityTableName() string
 - GetEntityTrashTableName() string
 

@@ -8,7 +8,12 @@ import (
 func TestEntityCreate(t *testing.T) {
 	db := InitDB("test_entity_create.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, _ := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	entity, _ := store.EntityCreate("post")
 	if entity == nil {

@@ -3,8 +3,6 @@ package entitystore
 import (
 	"database/sql"
 	"errors"
-	"reflect"
-	"strings"
 )
 
 // Store defines an entity store
@@ -21,67 +19,6 @@ type Store struct {
 
 // StoreOption options for the vault store
 type StoreOption func(*Store)
-
-// WithAutoMigrate sets the table name for the cache store
-func WithAutoMigrate(automigrateEnabled bool) StoreOption {
-	return func(s *Store) {
-		s.automigrateEnabled = automigrateEnabled
-	}
-}
-
-// WithDb sets the database for the entity store
-func WithDb(db *sql.DB) StoreOption {
-	return func(s *Store) {
-		s.db = db
-		s.dbDriverName = s.DriverName(s.db)
-	}
-}
-
-// WithDebug sets the debug on / off for the entity store
-func WithDebug(debugEnabled bool) StoreOption {
-	return func(s *Store) {
-		s.debugEnabled = debugEnabled
-	}
-}
-
-// WithEntityTableName sets the table name for the cache store
-func WithEntityTableName(entityTableName string) StoreOption {
-	return func(s *Store) {
-		s.entityTableName = entityTableName
-	}
-}
-
-// WithAttributeTableName sets the table name for the cache store
-func WithAttributeTableName(attributeTableName string) StoreOption {
-	return func(s *Store) {
-		s.attributeTableName = attributeTableName
-	}
-}
-
-// NewStore creates a new entity store
-func NewStore(opts ...StoreOption) (*Store, error) {
-	store := &Store{}
-	for _, opt := range opts {
-		opt(store)
-	}
-
-	if store.entityTableName == "" {
-		return nil, errors.New("Entity store: entityTableName is required")
-	}
-
-	if store.attributeTableName == "" {
-		return nil, errors.New("Entity store: attributeTableName is required")
-	}
-
-	store.entityTrashTableName = store.entityTableName + "_trash"
-	store.attributeTrashTableName = store.attributeTableName + "_trash"
-
-	if store.automigrateEnabled == true {
-		store.AutoMigrate()
-	}
-
-	return store, nil
-}
 
 // AutoMigrate auto migrate
 func (st *Store) AutoMigrate() error {
@@ -128,28 +65,6 @@ func (st *Store) GetEntityTableName() string {
 
 func (st *Store) GetEntityTrashTableName() string {
 	return st.entityTrashTableName
-}
-
-func (st *Store) DriverName(db *sql.DB) string {
-	dv := reflect.ValueOf(db.Driver())
-	driverFullName := dv.Type().String()
-	if strings.Contains(driverFullName, "mysql") {
-		return "mysql"
-	}
-	if strings.Contains(driverFullName, "postgres") || strings.Contains(driverFullName, "pq") {
-		return "postgres"
-	}
-	if strings.Contains(driverFullName, "sqlite") || strings.Contains(driverFullName, "sqlite3") {
-		return "sqlite"
-	}
-	if strings.Contains(driverFullName, "mssql") {
-		return "mssql"
-	}
-	return driverFullName
-}
-
-func (st *Store) SetDebug(debugEnabled bool) {
-	st.debugEnabled = debugEnabled
 }
 
 func (st *Store) SqlCreateTable() ([]string, error) {

@@ -5,7 +5,12 @@ import "testing"
 func TestEntityAttributesCreate(t *testing.T) {
 	db := InitDB("test_attributes_create.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	//store.SetDebug(true)
 

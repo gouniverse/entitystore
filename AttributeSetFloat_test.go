@@ -5,12 +5,17 @@ import "testing"
 func TestAttributeSetFloat(t *testing.T) {
 	db := InitDB("test_attribute_float.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
-	err := store.AttributeSetFloat("default", "test_float", 12.123456789123456789123456789)
+	errSetFloat := store.AttributeSetFloat("default", "test_float", 12.123456789123456789123456789)
 
-	if err != nil {
-		t.Fatal("Attribute could not be created:", err.Error())
+	if errSetFloat != nil {
+		t.Fatal("Attribute could not be created:", errSetFloat.Error())
 	}
 
 	attr, err := store.AttributeFind("default", "test_float")

@@ -5,7 +5,12 @@ import "testing"
 func TestAttributeInt(t *testing.T) {
 	db := InitDB("test_attribute_int.db")
 
-	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	if err != nil {
 		t.Fatalf(err.Error())

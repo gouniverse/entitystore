@@ -5,7 +5,12 @@ import "testing"
 func TestEntityTrash(t *testing.T) {
 	db := InitDB("test_entity_trash.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
 		"title": "Test Post Title",

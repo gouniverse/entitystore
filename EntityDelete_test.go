@@ -5,7 +5,12 @@ import "testing"
 func TestEntityDelete(t *testing.T) {
 	db := InitDB("test_entity_delete.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	entity, err := store.EntityCreate("post")
 
