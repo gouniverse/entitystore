@@ -27,7 +27,12 @@ func InitDB(filepath string) *sql.DB {
 func TestStoreCreate(t *testing.T) {
 	db := InitDB("test_store_create.db")
 
-	store, err := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"), WithAutoMigrate(true))
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+		AutomigrateEnabled: true,
+	})
 
 	if err != nil {
 		t.Fatalf("Store could not be created: " + err.Error())
@@ -41,11 +46,19 @@ func TestStoreCreate(t *testing.T) {
 func TestStoreAutomigrate(t *testing.T) {
 	db := InitDB("test_entity_automigrate.db")
 
-	store, _ := NewStore(WithDb(db), WithEntityTableName("cms_entity"), WithAttributeTableName("cms_attribute"))
-
-	err := store.AutoMigrate()
+	store, err := NewStore(NewStoreOptions{
+		DB:                 db,
+		EntityTableName:    "cms_entity",
+		AttributeTableName: "cms_attribute",
+	})
 
 	if err != nil {
-		t.Fatalf("Automigrate failed: " + err.Error())
+		t.Fatalf("Store could not be created: " + err.Error())
+	}
+
+	errAutomigrate := store.AutoMigrate()
+
+	if errAutomigrate != nil {
+		t.Fatal("Automigrate failed: ", err.Error())
 	}
 }

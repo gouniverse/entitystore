@@ -5,41 +5,76 @@ import (
 	"time"
 )
 
-// Entity type
+// Entity this is the type for an Entity
 type Entity struct {
-	ID        string    `db:"id"`
-	Type      string    `db:"entity_type"`
-	Handle    string    `db:"entity_handle"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
-	st        *Store    //`db:-`
+	id           string
+	entityType   string
+	entityHandle string
+	createdAt    time.Time
+	updatedAt    time.Time
+	st           *Store
 }
 
-// BeforeCreate adds UID to model
-// func (e *Entity) BeforeCreate(tx *gorm.DB) (err error) {
-// 	uuid := uid.HumanUid()
-// 	e.ID = uuid
-// 	return nil
-// }
+func (e *Entity) ToMap() map[string]any {
+	entry := map[string]any{}
+	entry["id"] = e.ID()
+	entry["entity_type"] = e.Type()
+	entry["entity_handle"] = e.Handle()
+	entry["created_at"] = e.CreatedAt()
+	entry["updated_at"] = e.UpdatedAt()
+	return entry
+}
 
-// Delete deletes the entity
-// func (e *Entity) Delete() bool {
-// 	return e.st.EntityDelete(e.ID)
-// }
+func (e *Entity) ID() string {
+	return e.id
+}
 
-// Trash moves the entity to the trash bin
-// func (e *Entity) Trash() bool {
-// 	return e.st.EntityTrash(e.ID)
-// }
+func (e *Entity) Type() string {
+	return e.entityType
+}
+
+func (e *Entity) Handle() string {
+	return e.entityHandle
+}
+
+func (e *Entity) CreatedAt() time.Time {
+	return e.createdAt
+}
+
+func (e *Entity) UpdatedAt() time.Time {
+	return e.updatedAt
+}
+
+func (e *Entity) SetID(id string) *Entity {
+	e.id = id
+	return e
+}
+
+func (e *Entity) SetType(entityType string) *Entity {
+	e.entityType = entityType
+	return e
+}
+
+func (e *Entity) SetHandle(handle string) *Entity {
+	e.entityHandle = handle
+	return e
+}
+
+func (e *Entity) SetCreatedAt(createdAt time.Time) *Entity {
+	e.createdAt = createdAt
+	return e
+}
+
+func (e *Entity) SetUpdatedAt(updatedAt time.Time) *Entity {
+	e.updatedAt = updatedAt
+	return e
+}
 
 // GetInt the value of the attribute as string or the default value if it does not exist
 func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) {
 	attr, err := e.GetAttribute(attributeKey)
 
 	if err != nil {
-		if e.st.GetDebug() {
-			log.Println(err)
-		}
 		return defaultValue, err
 	}
 
@@ -52,12 +87,12 @@ func (e *Entity) GetInt(attributeKey string, defaultValue int64) (int64, error) 
 
 // GetAttribute return specified attribute
 func (e *Entity) GetAttribute(attributeKey string) (*Attribute, error) {
-	return e.st.AttributeFind(e.ID, attributeKey)
+	return e.st.AttributeFind(e.ID(), attributeKey)
 }
 
 // GetAttributes all the attributes of the entity
 func (e *Entity) GetAttributes() ([]Attribute, error) {
-	return e.st.EntityAttributeList(e.ID)
+	return e.st.EntityAttributeList(e.ID())
 }
 
 // GetFloat the value of the attribute as float or the default value if it does not exist
@@ -97,21 +132,21 @@ func (e *Entity) GetString(attributeKey string, defaultValue string) (string, er
 }
 
 // SetAll upserts the attributes
-func (e *Entity) SetAll(attributes map[string]string) (bool, error) {
-	return e.st.AttributesSet(e.ID, attributes)
+func (e *Entity) SetAll(attributes map[string]string) error {
+	return e.st.AttributesSet(e.ID(), attributes)
 }
 
 // SetFloat sets an attribute with float value
-func (e *Entity) SetFloat(attributeKey string, attributeValue float64) (bool, error) {
-	return e.st.AttributeSetFloat(e.ID, attributeKey, attributeValue)
+func (e *Entity) SetFloat(attributeKey string, attributeValue float64) error {
+	return e.st.AttributeSetFloat(e.ID(), attributeKey, attributeValue)
 }
 
 // SetInt sets an attribute with int value
-func (e *Entity) SetInt(attributeKey string, attributeValue int64) (bool, error) {
-	return e.st.AttributeSetInt(e.ID, attributeKey, attributeValue)
+func (e *Entity) SetInt(attributeKey string, attributeValue int64) error {
+	return e.st.AttributeSetInt(e.ID(), attributeKey, attributeValue)
 }
 
 // SetString sets an attribute with string value
-func (e *Entity) SetString(attributeKey string, attributeValue string) (bool, error) {
-	return e.st.AttributeSetString(e.ID, attributeKey, attributeValue)
+func (e *Entity) SetString(attributeKey string, attributeValue string) error {
+	return e.st.AttributeSetString(e.ID(), attributeKey, attributeValue)
 }
