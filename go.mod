@@ -9,3 +9,5 @@ require (
 )
 
 require github.com/georgysavva/scany v1.2.1
+
+require github.com/golang-module/carbon/v2 v2.2.3 // indirect

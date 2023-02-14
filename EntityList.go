@@ -22,7 +22,7 @@ func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, er
 		log.Println(sqlStr)
 	}
 
-	entityMaps := []map[string]any{}
+	entityMaps := []map[string]string{}
 	errScan := sqlscan.Select(context.Background(), st.db, &entityMaps, sqlStr)
 	if errScan != nil {
 		if errScan == sql.ErrNoRows {
@@ -39,7 +39,7 @@ func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, er
 	}
 
 	for i := 0; i < len(entityMaps); i++ {
-		entity := st.EntityFromMap(entityMaps[i])
+		entity := st.NewEntityFromMap(entityMaps[i])
 		entityList = append(entityList, *entity)
 	}
 

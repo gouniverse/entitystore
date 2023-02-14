@@ -22,7 +22,7 @@ func (st *Store) AttributeList(options AttributeQueryOptions) (attributeList []A
 		log.Println(sqlStr)
 	}
 
-	attributeMaps := []map[string]any{}
+	attributeMaps := []map[string]string{}
 	errScan := sqlscan.Select(context.Background(), st.db, &attributeMaps, sqlStr)
 	if errScan != nil {
 		if errScan == sql.ErrNoRows {
@@ -38,7 +38,7 @@ func (st *Store) AttributeList(options AttributeQueryOptions) (attributeList []A
 	}
 
 	for i := 0; i < len(attributeMaps); i++ {
-		attribute := st.AttributeFromMap(attributeMaps[i])
+		attribute := st.NewAttributeFromMap(attributeMaps[i])
 		attributeList = append(attributeList, *attribute)
 	}
 
