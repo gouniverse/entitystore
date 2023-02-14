@@ -20,19 +20,19 @@ go get -u github.com/gouniverse/entitystore
 
 ## Setup
 
-```
+```golang
 entityStore, err := NewStore(NewStoreOptions{
-		DB:                 db,
-		EntityTableName:    "entities_entity",
-		AttributeTableName: "entities_attribute",
-		AutomigrateEnabled: true,
-	})
+	DB:                 db,
+	EntityTableName:    "entities_entity",
+	AttributeTableName: "entities_attribute",
+	AutomigrateEnabled: true,
+})
 ```
 
 ## Usage
 
 1. Create a new entity
-```
+```golang
 person := entityStore.EntityCreate("person")
 person.SetString("name","Jon Doe")
 person.SetInt("age", 32)
@@ -41,7 +41,7 @@ person.SetInterface("kids", []string{"Tina","Sam"})
 ```
 
 2. Retrieve an entity
-```
+```golang
 personID := "{THE PERSON ID}"
 person := entityStore.EntityFindByID(personID)
 person.GetString("name")
