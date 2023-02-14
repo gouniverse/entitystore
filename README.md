@@ -1,5 +1,7 @@
 # Entity Store
 
+![tests](https://github.com/gouniverse/entitystore/workflows/tests/badge.svg)
+
 Modern "schemaless" storage using a relational (SQL) database. Document database interface for relational databases. 
 
 ## Features
