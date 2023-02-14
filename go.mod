@@ -8,4 +8,4 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.14
 )
 
-require github.com/georgysavva/scany v1.2.1 // indirect
+require github.com/georgysavva/scany v1.2.1
