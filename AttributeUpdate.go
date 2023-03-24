@@ -12,10 +12,14 @@ func (st *Store) AttributeUpdate(attr Attribute) error {
 	attr.SetUpdatedAt(time.Now())
 
 	q := goqu.Dialect(st.dbDriverName).Update(st.attributeTableName)
-	q = q.Where(goqu.C("id").Eq(attr.ID))
+	q = q.Where(goqu.C("id").Eq(attr.ID()))
 	q = q.Set(attr.ToMap())
 
-	sqlStr, _, _ := q.ToSQL()
+	sqlStr, _, errSql := q.ToSQL()
+
+	if errSql != nil {
+		return errSql
+	}
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
