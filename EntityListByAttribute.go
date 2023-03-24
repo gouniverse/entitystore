@@ -20,7 +20,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 
 	if err != nil {
 		if st.GetDebug() {
-			log.Println(err)
+			log.Println(err.Error())
 		}
 		return nil, err
 	}
