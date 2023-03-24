@@ -90,7 +90,7 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) er
 		attr.SetUpdatedAt(time.Now())
 
 		q := goqu.Dialect(st.dbDriverName).Update(st.attributeTableName)
-		q = q.Where(goqu.C("id").Eq(attr.ID))
+		q = q.Where(goqu.C("id").Eq(attr.ID()))
 		q = q.Set(attr.ToMap())
 
 		sqlStr, _, err := q.ToSQL()

@@ -8,13 +8,19 @@ import (
 )
 
 // EntityUpdate updates an entity
-func (st *Store) EntityUpdate(ent Entity) (bool, error) {
+func (st *Store) EntityUpdate(ent Entity) error {
 	ent.SetUpdatedAt(time.Now())
 
-	q := goqu.Dialect(st.dbDriverName).Update(st.GetEntityTableName())
-	q = q.Where(goqu.C("id").Eq(ent.ID)).Set(ent.ToMap())
+	q := goqu.Dialect(st.dbDriverName).
+		Update(st.GetEntityTableName()).
+		Where(goqu.C("id").Eq(ent.ID())).
+		Set(ent.ToMap())
 
-	sqlStr, _, _ := q.ToSQL()
+	sqlStr, _, errSql := q.ToSQL()
+
+	if errSql != nil {
+		return errSql
+	}
 
 	if st.GetDebug() {
 		log.Println(sqlStr)
@@ -27,8 +33,8 @@ func (st *Store) EntityUpdate(ent Entity) (bool, error) {
 			log.Println(err)
 		}
 
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }

@@ -60,8 +60,6 @@ func TestEntityAttributesCreate(t *testing.T) {
 		t.Fatal("Price int is incorrect: ", priceInt)
 	}
 
-	// store.AttributeSetString(entity.ID(), "description", "Description text")
-
 	entity.SetString("description", "Description text")
 	description, err := entity.GetString("description", "")
 
