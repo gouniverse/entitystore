@@ -33,8 +33,8 @@ func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, er
 		if sqlscan.NotFound(errScan) {
 			return nil, nil
 		}
-
-		log.Println("FunnelStore. VisitorList. Error: ", err)
+		
+		log.Println("EntityList. Error: ", errScan.Error())
 		return nil, err
 	}
 
