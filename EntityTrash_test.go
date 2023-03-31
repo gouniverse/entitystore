@@ -12,6 +12,10 @@ func TestEntityTrash(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
+	if err != nil {
+		t.Fatal("Must be NIL:", err.Error())
+	}
+
 	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
 		"title": "Test Post Title",
 		"text":  "Test Post Text",

@@ -3,6 +3,8 @@ package entitystore
 import (
 	"database/sql"
 	"errors"
+
+	sqldb "github.com/gouniverse/sql"
 )
 
 // Store defines an entity store
@@ -12,6 +14,7 @@ type Store struct {
 	entityTrashTableName    string
 	attributeTrashTableName string
 	db                      *sql.DB
+	database                *sqldb.Database
 	dbDriverName            string
 	automigrateEnabled      bool
 	debugEnabled            bool

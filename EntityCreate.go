@@ -10,13 +10,10 @@ import (
 
 // EntityCreate creates a new entity
 func (st *Store) EntityCreate(entityType string) (*Entity, error) {
-	return st.entityCreateWithTransactionOrDB(st.db, entityType)
-}
-
-func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (*Entity, error) {
 	entity := st.NewEntity(NewEntityOptions{
 		ID:        uid.HumanUid(),
 		Type:      entityType,
+		Handle:    "",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
@@ -33,7 +30,7 @@ func (st *Store) entityCreateWithTransactionOrDB(db txOrDB, entityType string) (
 		log.Println(sqlStr)
 	}
 
-	_, err := db.Exec(sqlStr)
+	_, err := st.database.Exec(sqlStr)
 
 	if err != nil {
 		return entity, err

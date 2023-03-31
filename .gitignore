@@ -28,3 +28,5 @@ test_attribute_string.db
 test_store_create.db
 test_attribute_int.db
 oryxBuildBinary
+test_entity_create_with_attributes.db
+test_entity_find_by_attribute.db

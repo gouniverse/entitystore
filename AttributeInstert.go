@@ -11,10 +11,6 @@ import (
 
 // AttributeCreate creates a new attribute
 func (st *Store) AttributeInsert(attr Attribute) (*Attribute, error) {
-	return st.attributeInsertWithTransactionOrDB(st.db, attr)
-}
-
-func (st *Store) attributeInsertWithTransactionOrDB(db txOrDB, attr Attribute) (*Attribute, error) {
 	if attr.AttributeKey() == "" {
 		return nil, errors.New("attribute key is required field")
 	}
@@ -36,7 +32,7 @@ func (st *Store) attributeInsertWithTransactionOrDB(db txOrDB, attr Attribute) (
 		log.Println(sqlStr)
 	}
 
-	_, err := db.Exec(sqlStr)
+	_, err := st.database.Exec(sqlStr)
 
 	if err != nil {
 		if st.GetDebug() {

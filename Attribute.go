@@ -88,7 +88,7 @@ func (a *Attribute) GetInt() (int64, error) {
 
 // GetFloat returns the value as float
 func (a *Attribute) GetFloat() (float64, error) {
-	f64Value, err := strconv.ParseFloat(a.AttributeValue(), 100)
+	f64Value, err := strconv.ParseFloat(a.AttributeValue(), 64)
 	return f64Value, err
 }
 

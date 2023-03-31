@@ -3,6 +3,8 @@ package entitystore
 import (
 	"database/sql"
 	"errors"
+
+	sqldb "github.com/gouniverse/sql"
 )
 
 // NewStore creates a new entity store
@@ -37,12 +39,30 @@ type NewStoreOptions struct {
 	EntityTrashTableName    string
 	AttributeTrashTableName string
 	DB                      *sql.DB
+	Database                *sqldb.Database
 	DbDriverName            string
 	AutomigrateEnabled      bool
 	DebugEnabled            bool
 }
 
 func NewStore(opts NewStoreOptions) (*Store, error) {
+	if opts.DB == nil && opts.Database == nil {
+		return nil, errors.New("entity store: DB or Database is required")
+	}
+
+	if opts.DbDriverName == "" {
+		if opts.DB != nil {
+			opts.DbDriverName = driverName(opts.DB)
+		}
+		if opts.Database != nil {
+			opts.DbDriverName = driverName(opts.Database.DB())
+		}
+	}
+
+	if opts.Database == nil {
+		opts.Database = sqldb.NewDatabase(opts.DB, opts.DbDriverName)
+	}
+
 	store := &Store{
 		entityTableName:         opts.EntityTableName,
 		attributeTableName:      opts.AttributeTableName,
@@ -50,6 +70,7 @@ func NewStore(opts NewStoreOptions) (*Store, error) {
 		attributeTrashTableName: opts.AttributeTrashTableName,
 		automigrateEnabled:      opts.AutomigrateEnabled,
 		db:                      opts.DB,
+		database:                opts.Database,
 		dbDriverName:            opts.DbDriverName,
 		debugEnabled:            opts.DebugEnabled,
 	}
@@ -68,14 +89,6 @@ func NewStore(opts NewStoreOptions) (*Store, error) {
 
 	if store.attributeTrashTableName == "" {
 		store.attributeTrashTableName = store.attributeTableName + "_trash"
-	}
-
-	if store.db == nil {
-		return nil, errors.New("entity store: DB is required")
-	}
-
-	if store.dbDriverName == "" {
-		store.dbDriverName = driverName(store.db)
 	}
 
 	if store.automigrateEnabled {

@@ -12,6 +12,10 @@ func TestAttributeSetFloat(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
+	if err != nil {
+		t.Fatal("Must be NIL:", err.Error())
+	}
+
 	errSetFloat := store.AttributeSetFloat("default", "test_float", 12.123456789123456789123456789)
 
 	if errSetFloat != nil {

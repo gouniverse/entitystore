@@ -3,7 +3,8 @@ package entitystore
 // EntityCreateWithAttributes func
 func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[string]string) (*Entity, error) {
 	// Note the use of tx as the database handle once you are within a transaction
-	tx, err := st.db.Begin()
+	// tx, err := st.db.Begin()
+	err := st.database.BeginTransaction()
 
 	if err != nil {
 		return nil, err
@@ -11,30 +12,30 @@ func (st *Store) EntityCreateWithAttributes(entityType string, attributes map[st
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
+			st.database.RollbackTransaction()
 		}
 	}()
 
-	entity, err := st.entityCreateWithTransactionOrDB(tx, entityType)
+	entity, err := st.EntityCreate(entityType)
 
 	if err != nil {
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return nil, err
 	}
 
 	for k, v := range attributes {
-		_, err := st.attributeCreateWithTransactionOrDB(tx, entity.ID(), k, v)
+		_, err := st.AttributeCreate(entity.ID(), k, v)
 
 		if err != nil {
-			tx.Rollback()
+			st.database.RollbackTransaction()
 			return nil, err
 		}
 	}
 
-	err = tx.Commit()
+	err = st.database.CommitTransaction()
 
 	if err != nil {
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return nil, err
 	}
 

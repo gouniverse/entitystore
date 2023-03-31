@@ -12,6 +12,10 @@ func TestEntityDelete(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
+	if err != nil {
+		t.Fatal("Must be NIL:", err.Error())
+	}
+
 	entity, err := store.EntityCreate("post")
 
 	if err != nil {

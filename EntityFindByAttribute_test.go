@@ -3,7 +3,7 @@ package entitystore
 import "testing"
 
 func TestEntityFindByAttribute(t *testing.T) {
-	db := InitDB("test_entity_update.db")
+	db := InitDB("test_entity_find_by_attribute.db")
 
 	store, err := NewStore(NewStoreOptions{
 		DB:                 db,
@@ -11,6 +11,10 @@ func TestEntityFindByAttribute(t *testing.T) {
 		AttributeTableName: "cms_attribute",
 		AutomigrateEnabled: true,
 	})
+
+	if err != nil {
+		t.Fatal("Must be NIL:", err.Error())
+	}
 
 	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
 		"path": "/",

@@ -12,6 +12,9 @@ func TestEntityAttributesCreate(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
+	if err != nil {
+		t.Fatal("Must be NIL:", err.Error())
+	}
 	//store.SetDebug(true)
 
 	entity, err := store.EntityCreate("post")
