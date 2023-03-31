@@ -6,6 +6,8 @@ type AttributeQueryOptions struct {
 	ID           string
 	IDs          []string
 	EntityID     string
+	EntityType   string
+	EntityHandle string
 	AttributeKey string
 	Limit        uint64
 	Offset       uint64
@@ -16,6 +18,10 @@ type AttributeQueryOptions struct {
 
 func (st *Store) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
+
+	if options.EntityType != "" && options.EntityHandle != "" {
+		q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")}))
+	}
 
 	if len(options.IDs) > 0 {
 		q = q.Where(goqu.C("id").In(options.IDs))
@@ -44,6 +50,11 @@ func (st *Store) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDatas
 
 	if options.EntityID != "" {
 		q = q.Where(goqu.C("entity_id").Eq(options.EntityID))
+	}
+
+	if options.EntityType != "" && options.EntityHandle != "" {
+		q = q.Where(goqu.C("entity_type").Eq(options.EntityType))
+		q = q.Where(goqu.C("entity_handle").Eq(options.EntityHandle))
 	}
 
 	if options.AttributeKey != "" {
