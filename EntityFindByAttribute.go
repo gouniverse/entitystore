@@ -21,7 +21,7 @@ func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, a
 	}
 
 	var entityID string
-	err := st.db.QueryRow(sqlStr).Scan(&entityID)
+	err := st.database.DB().QueryRow(sqlStr).Scan(&entityID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
