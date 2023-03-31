@@ -32,7 +32,7 @@ func (st *Store) AutoMigrate() error {
 	}
 
 	for _, sql := range sqls {
-		_, err := st.db.Exec(sql)
+		_, err := st.database.Exec(sql)
 		if err != nil {
 			return nil
 		}

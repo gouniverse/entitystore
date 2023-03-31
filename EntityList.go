@@ -1,11 +1,7 @@
 package entitystore
 
 import (
-	"context"
-	"database/sql"
 	"log"
-
-	"github.com/georgysavva/scany/sqlscan"
 )
 
 // EntityList lists entities
@@ -22,20 +18,25 @@ func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, er
 		log.Println(sqlStr)
 	}
 
-	entityMaps := []map[string]string{}
-	errScan := sqlscan.Select(context.Background(), st.db, &entityMaps, sqlStr)
-	if errScan != nil {
-		if errScan == sql.ErrNoRows {
-			// sqlscan does not use this anymore
-			return nil, errScan
-		}
+	entityMaps, errSelect := st.database.SelectToMapString(sqlStr)
+	// errScan := sqlscan.Select(context.Background(), st.db, &entityMaps, sqlStr)
+	// if errScan != nil {
+	// 	if errScan == sql.ErrNoRows {
+	// 		// sqlscan does not use this anymore
+	// 		return nil, errScan
+	// 	}
 
-		if sqlscan.NotFound(errScan) {
-			return nil, nil
-		}
-		
-		log.Println("EntityList. Error: ", errScan.Error())
-		return nil, err
+	// 	if sqlscan.NotFound(errScan) {
+	// 		return nil, nil
+	// 	}
+
+	// 	log.Println("EntityList. Error: ", errScan.Error())
+	// 	return nil, err
+	// }
+
+	if errSelect != nil {
+		log.Println("EntityList. Error: ", errSelect.Error())
+		return nil, errSelect
 	}
 
 	for i := 0; i < len(entityMaps); i++ {
