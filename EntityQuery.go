@@ -48,7 +48,7 @@ func (st *Store) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
 	}
 
 	if options.EntityHandle != "" {
-		q = q.Where(goqu.C("entity_handle").Eq(options.EntityType))
+		q = q.Where(goqu.C("entity_handle").Eq(options.EntityHandle))
 	}
 
 	q = q.Offset(uint(options.Offset))
