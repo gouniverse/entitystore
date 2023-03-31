@@ -29,7 +29,7 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 		log.Println(sqlStr)
 	}
 
-	rows, err := st.db.Query(sqlStr)
+	rows, err := st.database.Query(sqlStr)
 
 	if err != nil {
 		return []Entity{}, err

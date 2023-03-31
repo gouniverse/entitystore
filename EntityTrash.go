@@ -15,11 +15,11 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 	}
 
 	// Note the use of tx as the database handle once you are within a transaction
-	tx, err := st.db.Begin()
+	err := st.database.BeginTransaction()
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
+			st.database.RollbackTransaction()
 		}
 	}()
 
@@ -30,12 +30,12 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 	ent, err := st.EntityFindByID(entityID)
 
 	if err != nil {
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
 	if ent == nil {
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -55,11 +55,11 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		log.Println(sqlStr)
 	}
 
-	if _, err := tx.Exec(sqlStr); err != nil {
+	if _, err := st.database.Exec(sqlStr); err != nil {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -69,7 +69,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -92,11 +92,11 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 			log.Println(sqlStrAttr)
 		}
 
-		if _, err := tx.Exec(sqlStrAttr); err != nil {
+		if _, err := st.database.Exec(sqlStrAttr); err != nil {
 			if st.GetDebug() {
 				log.Println(err)
 			}
-			tx.Rollback()
+			st.database.RollbackTransaction()
 			return false, err
 		}
 	}
@@ -104,32 +104,37 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 	q1 := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Delete()
 	sqlStr1, _, _ := q1.ToSQL()
 
-	if _, err := tx.Exec(sqlStr1); err != nil {
+	if _, err := st.database.Exec(sqlStr1); err != nil {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
 	q2 := goqu.Dialect(st.dbDriverName).From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Delete()
 	sqlStr2, _, _ := q2.ToSQL()
 
-	if _, err := tx.Exec(sqlStr2); err != nil {
+	if _, err := st.database.Exec(sqlStr2); err != nil {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		tx.Rollback()
+		st.database.RollbackTransaction()
 		return false, err
 	}
 
-	err = tx.Commit()
+	err = st.database.CommitTransaction()
 
 	if err == nil {
 		return true, nil
 	}
 
 	if st.GetDebug() {
+		log.Println(err)
+	}
+
+	err = st.database.RollbackTransaction()
+	if err != nil && st.GetDebug() {
 		log.Println(err)
 	}
 

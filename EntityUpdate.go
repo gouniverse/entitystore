@@ -26,7 +26,7 @@ func (st *Store) EntityUpdate(ent Entity) error {
 		log.Println(sqlStr)
 	}
 
-	_, err := st.db.Exec(sqlStr)
+	_, err := st.database.Exec(sqlStr)
 
 	if err != nil {
 		if st.GetDebug() {

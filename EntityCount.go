@@ -30,7 +30,7 @@ func (st *Store) EntityCount(options EntityQueryOptions) (int64, error) {
 	}
 
 	var result countResult
-	err := sqlscan.Get(context.Background(), st.db, &result, sqlStr)
+	err := sqlscan.Get(context.Background(), st.database.DB(), &result, sqlStr)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// sqlscan does not use this anymore

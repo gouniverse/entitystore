@@ -55,7 +55,7 @@ func (st *Store) GetAttributeTrashTableName() string {
 }
 
 func (st *Store) GetDB() *sql.DB {
-	return st.db
+	return st.database.DB()
 }
 
 func (st *Store) GetDebug() bool {

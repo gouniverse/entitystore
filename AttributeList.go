@@ -1,11 +1,7 @@
 package entitystore
 
 import (
-	"context"
-	"database/sql"
 	"log"
-
-	"github.com/georgysavva/scany/sqlscan"
 )
 
 // AttributeList lists attributes
@@ -22,20 +18,26 @@ func (st *Store) AttributeList(options AttributeQueryOptions) (attributeList []A
 		log.Println(sqlStr)
 	}
 
-	attributeMaps := []map[string]string{}
-	errScan := sqlscan.Select(context.Background(), st.db, &attributeMaps, sqlStr)
-	if errScan != nil {
-		if errScan == sql.ErrNoRows {
-			// sqlscan does not use this anymore
-			return nil, errScan
-		}
+	attributeMaps, errSelect := st.database.SelectToMapString(sqlStr)
 
-		if sqlscan.NotFound(errScan) {
-			return nil, nil
-		}
-
+	if errSelect != nil {
 		return nil, err
 	}
+
+	// attributeMaps := []map[string]string{}
+	// errScan := sqlscan.Select(context.Background(), st.db, &attributeMaps, sqlStr)
+	// if errScan != nil {
+	// 	if errScan == sql.ErrNoRows {
+	// 		// sqlscan does not use this anymore
+	// 		return nil, errScan
+	// 	}
+
+	// 	if sqlscan.NotFound(errScan) {
+	// 		return nil, nil
+	// 	}
+
+	// 	return nil, err
+	// }
 
 	for i := 0; i < len(attributeMaps); i++ {
 		attribute := st.NewAttributeFromMap(attributeMaps[i])
