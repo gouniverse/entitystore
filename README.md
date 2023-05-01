@@ -1,4 +1,4 @@
-# Entity Store
+# Entity Store <a href="https://github.com/gouniverse/entitystore" style="float:right:"><img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" loading="lazy"></a>
 
 ![tests](https://github.com/gouniverse/entitystore/actions/workflows/tests/badge.svg)
 
