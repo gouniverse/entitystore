@@ -6,23 +6,23 @@ import (
 
 // AttributesSet upserts an entity attribute
 func (st *Store) AttributesSet(entityID string, attributes map[string]string) error {
-	err := st.database.BeginTransaction()
+	// err := st.database.BeginTransaction()
 
-	if err != nil {
-		if st.GetDebug() {
-			log.Println(err)
-		}
-		return err
-	}
+	// if err != nil {
+	// 	if st.GetDebug() {
+	// 		log.Println(err)
+	// 	}
+	// 	return err
+	// }
 
-	defer func() {
-		if r := recover(); r != nil {
-			err = st.database.RollbackTransaction()
-			if st.GetDebug() {
-				log.Println(err)
-			}
-		}
-	}()
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		err = st.database.RollbackTransaction()
+	// 		if st.GetDebug() {
+	// 			log.Println(err)
+	// 		}
+	// 	}
+	// }()
 
 	for k, v := range attributes {
 		err := st.AttributeSetString(entityID, k, v)
@@ -32,27 +32,27 @@ func (st *Store) AttributesSet(entityID string, attributes map[string]string) er
 				log.Println(err)
 			}
 
-			err = st.database.RollbackTransaction()
+			// err = st.database.RollbackTransaction()
 
-			if st.GetDebug() {
-				log.Println(err)
-			}
+			// if st.GetDebug() {
+			// 	log.Println(err)
+			// }
 
 			return err
 		}
 	}
 
-	err = st.database.CommitTransaction()
+	// err = st.database.CommitTransaction()
 
-	if err != nil {
-		err = st.database.RollbackTransaction()
+	// if err != nil {
+	// 	err = st.database.RollbackTransaction()
 
-		if st.GetDebug() {
-			log.Println(err)
-		}
+	// 	if st.GetDebug() {
+	// 		log.Println(err)
+	// 	}
 
-		return err
-	}
+	// 	return err
+	// }
 
 	return nil
 }
