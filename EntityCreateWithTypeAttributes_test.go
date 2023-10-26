@@ -3,7 +3,7 @@ package entitystore
 import "testing"
 
 func TestEntityCreateWithAttributes(t *testing.T) {
-	db := InitDB("test_entity_create_with_attributes.db")
+	db := InitDB("test_entity_create_with_type_and_attributes.db")
 
 	store, err := NewStore(NewStoreOptions{
 		DB:                 db,
@@ -16,7 +16,7 @@ func TestEntityCreateWithAttributes(t *testing.T) {
 		t.Fatal("Must be NIL:", err.Error())
 	}
 
-	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
+	entity, err := store.EntityCreateWithTypeAndAttributes("post", map[string]string{
 		"name": "Hello world",
 	})
 

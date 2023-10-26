@@ -13,22 +13,6 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-entity_create.db
-entity_update.db
-test_entity_create.db
-test_entity_automigrate.db
-test_entity_delete.db
-test_entity_trash.db
-attribute.go
-test_attributes_create.db
-test_entity_update.db
-test_attribute_create.db
-test_attribute_float.db
-test_attribute_string.db
-test_store_create.db
-test_attribute_int.db
-oryxBuildBinary
-test_entity_create_with_attributes.db
-test_entity_find_by_attribute.db
-test_attribute_find_by_handle.db
-test_attribute_find.db
+
+# Test databases
+*.db

@@ -25,13 +25,13 @@ type StoreOption func(*Store)
 
 // AutoMigrate auto migrate
 func (st *Store) AutoMigrate() error {
-	sqls, err := st.SqlCreateTable()
+	sqlArray, err := st.SqlCreateTable()
 
 	if err != nil {
 		return err
 	}
 
-	for _, sql := range sqls {
+	for _, sql := range sqlArray {
 		_, err := st.database.Exec(sql)
 		if err != nil {
 			return nil

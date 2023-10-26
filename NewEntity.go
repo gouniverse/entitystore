@@ -10,7 +10,7 @@ type NewEntityOptions struct {
 	UpdatedAt time.Time
 }
 
-func (st *Store) NewEntity(opts NewEntityOptions) *Entity {
+func (st *Store) NewEntity(opts NewEntityOptions) Entity {
 	entity := Entity{}
 	entity.SetID(opts.ID)
 	entity.SetType(opts.Type)
@@ -18,5 +18,5 @@ func (st *Store) NewEntity(opts NewEntityOptions) *Entity {
 	entity.SetCreatedAt(opts.CreatedAt)
 	entity.SetUpdatedAt(opts.UpdatedAt)
 	entity.st = st
-	return &entity
+	return entity
 }

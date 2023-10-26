@@ -41,7 +41,7 @@ func (st *Store) AttributeList(options AttributeQueryOptions) (attributeList []A
 
 	for i := 0; i < len(attributeMaps); i++ {
 		attribute := st.NewAttributeFromMap(attributeMaps[i])
-		attributeList = append(attributeList, *attribute)
+		attributeList = append(attributeList, attribute)
 	}
 
 	return attributeList, nil

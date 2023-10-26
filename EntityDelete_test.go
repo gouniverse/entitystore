@@ -16,10 +16,10 @@ func TestEntityDelete(t *testing.T) {
 		t.Fatal("Must be NIL:", err.Error())
 	}
 
-	entity, err := store.EntityCreate("post")
+	entity, err := store.EntityCreateWithType("post")
 
 	if err != nil {
-		t.Fatalf("Entiry could not be created: " + err.Error())
+		t.Fatalf("Entity could not be created: " + err.Error())
 	}
 
 	if entity == nil {

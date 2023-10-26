@@ -2,7 +2,7 @@ package entitystore
 
 import "github.com/golang-module/carbon/v2"
 
-func (st *Store) NewEntityFromMap(entityMap map[string]string) *Entity {
+func (st *Store) NewEntityFromMap(entityMap map[string]string) Entity {
 	opts := NewEntityOptions{}
 	if id, exists := entityMap["id"]; exists {
 		opts.ID = id

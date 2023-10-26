@@ -41,7 +41,7 @@ func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, er
 
 	for i := 0; i < len(entityMaps); i++ {
 		entity := st.NewEntityFromMap(entityMaps[i])
-		entityList = append(entityList, *entity)
+		entityList = append(entityList, entity)
 	}
 
 	return entityList, nil

@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func TestEntityCreate(t *testing.T) {
-	db := InitDB("test_entity_create.db")
+func TestEntityCreateWithType(t *testing.T) {
+	db := InitDB("test_entity_create_with_type.db")
 
 	store, _ := NewStore(NewStoreOptions{
 		DB:                 db,
@@ -15,7 +15,7 @@ func TestEntityCreate(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
-	entity, _ := store.EntityCreate("post")
+	entity, _ := store.EntityCreateWithType("post")
 	if entity == nil {
 		t.Fatalf("Entity could not be created")
 	}
@@ -37,6 +37,6 @@ func TestEntityCreate(t *testing.T) {
 	}
 
 	if entity.UpdatedAt().After(time.Now().Add(1 * time.Minute)) {
-		t.Fatalf("Entity UpdateddAt is not recent (after 1 min):" + entity.CreatedAt().String())
+		t.Fatalf("Entity UpdatedAt is not recent (after 1 min):" + entity.CreatedAt().String())
 	}
 }

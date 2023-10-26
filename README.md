@@ -35,7 +35,7 @@ entityStore, err := NewStore(NewStoreOptions{
 
 1. Create a new entity
 ```golang
-person := entityStore.EntityCreate("person")
+person := entityStore.EntityCreateWithType("person")
 person.SetString("name","Jon Doe")
 person.SetInt("age", 32)
 person.SetFloat("salary", 1234.56)
@@ -63,17 +63,18 @@ These methods may be subject to change
 
 ### Store Methods
 
-
-- AttributeCreate(entityID string, attributeKey string, attributeValue string) *Attribute - creates a new attribute
+- AttributeCreate(attr *Attribute) error - creates a new attributes
+- AttributeCreateWithKeyAndValue(entityID string, attributeKey string, attributeValue string) *Attribute - shortcut to create a new attribute with key and value
 - AttributeFind(entityID string, attributeKey string) *Attribute - finds an attribute by ID
 - AttributeSetFloat(entityID string, attributeKey string, attributeValue float64) error - upserts a new float attribute
 - AttributeSetInt(entityID string, attributeKey string, attributeValue int64) error -  upserts a new int attribute
 - AttributeSetString(entityID string, attributeKey string, attributeValue string) error -  upserts a new interface{} attribute
 - AttributeSetString(entityID string, attributeKey string, attributeValue string) error -  upserts a new string attribute
 - AutoMigrate() - auto migrate
-- EntityCount(entityType string) uint64 - counts entities
-- EntityCreate(entityType string) *Entity - creates a new entity
-- EntityCreateWithAttributes(entityType string, attributes map[string]interface{}) *Entity
+- EntityCount(entityType string) uint64 - counts entities with the specified type
+- EntityCreate(entity *Entity) error - creates a new attributes
+- EntityCreateWithType(entityType string) *Entity - shortcut to create a new entity
+- EntityCreateWithTypeAndAttributes(entityType string, attributes map[string]interface{}) *Entity
 - EntityDelete(entityID string) - deletes an entity and all attributes
 - EntityFindByID(entityID string) *Entity - finds an entity by ID
 - EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) *Entity - finds an entity by attribute

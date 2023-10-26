@@ -2,8 +2,8 @@ package entitystore
 
 import "testing"
 
-func TestAttributeCreate(t *testing.T) {
-	db := InitDB("test_attribute_create.db")
+func TestAttributeCreateWithKeyAndValue(t *testing.T) {
+	db := InitDB("test_attribute_create_with_key_and_value.db")
 
 	store, err := NewStore(NewStoreOptions{
 		DB:                 db,

@@ -17,7 +17,7 @@ func TestEntityAttributesCreate(t *testing.T) {
 	}
 	//store.SetDebug(true)
 
-	entity, err := store.EntityCreate("post")
+	entity, err := store.EntityCreateWithType("post")
 
 	if err != nil {
 		t.Fatalf("Entity could not be created: " + err.Error())

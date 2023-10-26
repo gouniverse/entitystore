@@ -16,7 +16,7 @@ func TestEntityFindByAttribute(t *testing.T) {
 		t.Fatal("Must be NIL:", err.Error())
 	}
 
-	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
+	entity, err := store.EntityCreateWithTypeAndAttributes("post", map[string]string{
 		"path": "/",
 	})
 

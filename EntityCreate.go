@@ -1,6 +1,7 @@
 package entitystore
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -9,21 +10,30 @@ import (
 )
 
 // EntityCreate creates a new entity
-func (st *Store) EntityCreate(entityType string) (*Entity, error) {
-	entity := st.NewEntity(NewEntityOptions{
-		ID:        uid.HumanUid(),
-		Type:      entityType,
-		Handle:    "",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	})
+func (st *Store) EntityCreate(entity *Entity) error {
+	if entity == nil {
+		return errors.New("entity cannot be nil")
+	}
+
+	if entity.ID() == "" {
+		entity.SetID(uid.HumanUid())
+	}
+
+	if entity.CreatedAt().IsZero() {
+		entity.SetCreatedAt(time.Now())
+	}
+
+	if entity.UpdatedAt().IsZero() {
+		entity.SetUpdatedAt(time.Now())
+	}
 
 	q := goqu.Dialect(st.dbDriverName).Insert(st.entityTableName)
 	q = q.Rows(entity.ToMap())
+
 	sqlStr, _, errSql := q.ToSQL()
 
 	if errSql != nil {
-		return nil, errSql
+		return errSql
 	}
 
 	if st.GetDebug() {
@@ -33,8 +43,8 @@ func (st *Store) EntityCreate(entityType string) (*Entity, error) {
 	_, err := st.database.Exec(sqlStr)
 
 	if err != nil {
-		return entity, err
+		return err
 	}
 
-	return entity, nil
+	return nil
 }

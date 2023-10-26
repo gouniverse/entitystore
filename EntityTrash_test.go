@@ -16,13 +16,13 @@ func TestEntityTrash(t *testing.T) {
 		t.Fatal("Must be NIL:", err.Error())
 	}
 
-	entity, err := store.EntityCreateWithAttributes("post", map[string]string{
+	entity, err := store.EntityCreateWithTypeAndAttributes("post", map[string]string{
 		"title": "Test Post Title",
 		"text":  "Test Post Text",
 	})
 
 	if err != nil {
-		t.Fatalf("Entiry could not be created: " + err.Error())
+		t.Fatalf("Entity could not be created: " + err.Error())
 	}
 
 	if entity == nil {
@@ -42,7 +42,7 @@ func TestEntityTrash(t *testing.T) {
 	isDeleted, err := store.EntityTrash(entity.ID())
 
 	if err != nil {
-		t.Fatalf("Entiry could not be deleted: " + err.Error())
+		t.Fatalf("Entity could not be deleted: " + err.Error())
 	}
 
 	if isDeleted == false {

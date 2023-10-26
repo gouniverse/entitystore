@@ -9,7 +9,7 @@ func (st *Store) AttributeSetString(entityID string, attributeKey string, attrib
 	}
 
 	if attr == nil {
-		attr, err := st.AttributeCreate(entityID, attributeKey, attributeValue)
+		attr, err := st.AttributeCreateWithKeyAndValue(entityID, attributeKey, attributeValue)
 		if err != nil {
 			return err
 		}
