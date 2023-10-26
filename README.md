@@ -1,6 +1,6 @@
 # Entity Store <a href="https://gitpod.io/#https://github.com/gouniverse/entitystore" style="float:right:"><img src="https://gitpod.io/button/open-in-gitpod.svg" alt="Open in Gitpod" loading="lazy"></a>
 
-![tests](https://github.com/gouniverse/entitystore/actions/workflows/tests/badge.svg)
+![tests](https://github.com/gouniverse/entitystore/workflows/tests/badge.svg)
 
 Modern "schemaless" storage using a relational (SQL) database. Document database interface for relational databases. 
 
