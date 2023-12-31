@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	sqldb "github.com/gouniverse/sql"
+	"github.com/gouniverse/sb"
 )
 
 // NewStore creates a new entity store
@@ -39,7 +39,7 @@ type NewStoreOptions struct {
 	EntityTrashTableName    string
 	AttributeTrashTableName string
 	DB                      *sql.DB
-	Database                *sqldb.Database
+	Database                *sb.Database
 	DbDriverName            string
 	AutomigrateEnabled      bool
 	DebugEnabled            bool
@@ -60,7 +60,7 @@ func NewStore(opts NewStoreOptions) (*Store, error) {
 	}
 
 	if opts.Database == nil {
-		opts.Database = sqldb.NewDatabase(opts.DB, opts.DbDriverName)
+		opts.Database = sb.NewDatabase(opts.DB, opts.DbDriverName)
 	}
 
 	store := &Store{
