@@ -14,15 +14,14 @@ require (
 )
 
 require (
-	github.com/google/uuid v1.5.0 // indirect
-	golang.org/x/sys v0.19.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
 )
 
 require (
 	github.com/gouniverse/maputils v0.7.0 // indirect
-	github.com/gouniverse/sb v0.4.0
-	github.com/samber/lo v1.39.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
-	golang.org/x/text v0.14.0 // indirect
+	github.com/gouniverse/sb v0.5.0
+	github.com/samber/lo v1.47.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 )
