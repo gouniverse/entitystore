@@ -8,16 +8,24 @@ import (
 func TestEntityCreateWithType(t *testing.T) {
 	db := InitDB("test_entity_create_with_type.db")
 
-	store, _ := NewStore(NewStoreOptions{
+	store, err := NewStore(NewStoreOptions{
 		DB:                 db,
 		EntityTableName:    "cms_entity",
 		AttributeTableName: "cms_attribute",
 		AutomigrateEnabled: true,
 	})
 
-	entity, _ := store.EntityCreateWithType("post")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	entity, err := store.EntityCreateWithType("post")
 	if entity == nil {
 		t.Fatalf("Entity could not be created")
+	}
+
+	if err != nil {
+		t.Fatalf("Entity could not be created: " + err.Error())
 	}
 
 	if len(entity.ID()) < 32 {

@@ -39,7 +39,7 @@ type NewStoreOptions struct {
 	EntityTrashTableName    string
 	AttributeTrashTableName string
 	DB                      *sql.DB
-	Database                *sb.Database
+	Database                sb.DatabaseInterface
 	DbDriverName            string
 	AutomigrateEnabled      bool
 	DebugEnabled            bool
@@ -92,7 +92,11 @@ func NewStore(opts NewStoreOptions) (*Store, error) {
 	}
 
 	if store.automigrateEnabled {
-		store.AutoMigrate()
+		err := store.AutoMigrate()
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return store, nil

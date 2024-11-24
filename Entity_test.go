@@ -27,7 +27,11 @@ func TestEntityAttributesCreate(t *testing.T) {
 		t.Fatalf("Entity could not be created")
 	}
 
-	entity.SetString("title", "Product 1")
+	err = entity.SetString("title", "Product 1")
+
+	if err != nil {
+		t.Fatalf("Entity title could not be created: " + err.Error())
+	}
 
 	title, err := entity.GetString("title", "")
 
@@ -39,7 +43,11 @@ func TestEntityAttributesCreate(t *testing.T) {
 		t.Fatal("Title is incorrect: ", title)
 	}
 
-	entity.SetFloat("price_float", 12.35)
+	err = entity.SetFloat("price_float", 12.35)
+
+	if err != nil {
+		t.Fatalf("Entity price_float could not be created: " + err.Error())
+	}
 
 	priceFloat, err := entity.GetFloat("price_float", 0)
 
@@ -51,7 +59,11 @@ func TestEntityAttributesCreate(t *testing.T) {
 		t.Fatal("Price float is incorrect: ", priceFloat)
 	}
 
-	entity.SetInt("price_int", 12)
+	err = entity.SetInt("price_int", 12)
+
+	if err != nil {
+		t.Fatalf("Entity price_int could not be created: " + err.Error())
+	}
 
 	priceInt, err := entity.GetInt("price_int", 0)
 
@@ -63,7 +75,12 @@ func TestEntityAttributesCreate(t *testing.T) {
 		t.Fatal("Price int is incorrect: ", priceInt)
 	}
 
-	entity.SetString("description", "Description text")
+	err = entity.SetString("description", "Description text")
+
+	if err != nil {
+		t.Fatalf("Entity description could not be created: " + err.Error())
+	}
+
 	description, err := entity.GetString("description", "")
 
 	if err != nil {

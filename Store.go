@@ -14,7 +14,7 @@ type Store struct {
 	entityTrashTableName    string
 	attributeTrashTableName string
 	db                      *sql.DB
-	database                *sb.Database
+	database                sb.DatabaseInterface
 	dbDriverName            string
 	automigrateEnabled      bool
 	debugEnabled            bool

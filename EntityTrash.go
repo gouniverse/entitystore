@@ -19,7 +19,10 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			st.database.RollbackTransaction()
+			err = st.database.RollbackTransaction()
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 
@@ -30,12 +33,12 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 	ent, err := st.EntityFindByID(entityID)
 
 	if err != nil {
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 
 	if ent == nil {
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -59,7 +62,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -69,7 +72,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -96,7 +99,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 			if st.GetDebug() {
 				log.Println(err)
 			}
-			st.database.RollbackTransaction()
+			_ = st.database.RollbackTransaction()
 			return false, err
 		}
 	}
@@ -108,7 +111,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 
@@ -119,7 +122,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		if st.GetDebug() {
 			log.Println(err)
 		}
-		st.database.RollbackTransaction()
+		_ = st.database.RollbackTransaction()
 		return false, err
 	}
 

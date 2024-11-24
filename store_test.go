@@ -13,7 +13,8 @@ import (
 )
 
 func InitDB(filepath string) *sql.DB {
-	os.Remove(filepath) // remove database
+	_ = os.Remove(filepath) // remove database
+
 	dsn := filepath
 	db, err := sql.Open("sqlite3", dsn)
 

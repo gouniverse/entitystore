@@ -12,6 +12,10 @@ func TestAttributeFind(t *testing.T) {
 		AutomigrateEnabled: true,
 	})
 
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
 	for _, entityID := range []string{"entity1", "entity2", "entity3", "entity4", "entity5", "entity6", "entity7", "entity8"} {
 		errSet1 := store.AttributeSetString(entityID, "attr1", "val1")
 		if errSet1 != nil {
