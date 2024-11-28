@@ -9,8 +9,8 @@ require (
 )
 
 require (
+	github.com/dromara/carbon/v2 v2.5.0
 	github.com/georgysavva/scany v1.2.2
-	github.com/golang-module/carbon/v2 v2.4.1
 )
 
 require (
