@@ -10,10 +10,10 @@ import (
 // EntityFindByAttribute finds an entity by attribute
 func (st *Store) EntityFindByAttribute(entityType string, attributeKey string, attributeValue string) (*Entity, error) {
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
-	q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")}))
-	q = q.Where(goqu.C("entity_type").Eq(entityType))
-	q = q.Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue)))
-	q = q.Select("entity_id")
+	q = q.LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + "." + COLUMN_ENTITY_ID: goqu.I(st.entityTableName + "." + COLUMN_ID)}))
+	q = q.Where(goqu.C(COLUMN_ENTITY_TYPE).Eq(entityType))
+	q = q.Where(goqu.And(goqu.C(COLUMN_ATTRIBUTE_KEY).Eq(attributeKey), goqu.C(COLUMN_ATTRIBUTE_VALUE).Eq(attributeValue)))
+	q = q.Select(COLUMN_ENTITY_ID)
 
 	sqlStr, _, _ := q.ToSQL()
 	if st.GetDebug() {

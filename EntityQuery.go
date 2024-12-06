@@ -19,14 +19,14 @@ func (st *Store) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 
 	if len(options.IDs) > 0 {
-		q = q.Where(goqu.C("id").In(options.IDs))
+		q = q.Where(goqu.C(COLUMN_ID).In(options.IDs))
 	}
 
 	if options.ID != "" {
-		q = q.Where(goqu.C("id").Eq(options.ID))
+		q = q.Where(goqu.C(COLUMN_ID).Eq(options.ID))
 	}
 
-	sortByColumn := "id"
+	sortByColumn := COLUMN_ID
 	sortOrder := "asc"
 
 	if options.SortOrder != "" {
@@ -44,11 +44,11 @@ func (st *Store) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
 	}
 
 	if options.EntityType != "" {
-		q = q.Where(goqu.C("entity_type").Eq(options.EntityType))
+		q = q.Where(goqu.C(COLUMN_ENTITY_TYPE).Eq(options.EntityType))
 	}
 
 	if options.EntityHandle != "" {
-		q = q.Where(goqu.C("entity_handle").Eq(options.EntityHandle))
+		q = q.Where(goqu.C(COLUMN_ENTITY_HANDLE).Eq(options.EntityHandle))
 	}
 
 	q = q.Offset(uint(options.Offset))

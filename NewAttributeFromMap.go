@@ -5,23 +5,23 @@ import "github.com/dromara/carbon/v2"
 func (st *Store) NewAttributeFromMap(attributeMap map[string]string) Attribute {
 	opts := NewAttributeOptions{}
 
-	if id, exists := attributeMap["id"]; exists {
+	if id, exists := attributeMap[COLUMN_ID]; exists {
 		opts.ID = id
 	}
-	if entityID, exists := attributeMap["entity_id"]; exists {
+	if entityID, exists := attributeMap[COLUMN_ENTITY_ID]; exists {
 		opts.EntityID = entityID
 	}
-	if attributeKey, exists := attributeMap["attribute_key"]; exists {
+	if attributeKey, exists := attributeMap[COLUMN_ATTRIBUTE_KEY]; exists {
 		opts.AttributeKey = attributeKey
 	}
-	if attributeValue, exists := attributeMap["attribute_value"]; exists {
+	if attributeValue, exists := attributeMap[COLUMN_ATTRIBUTE_VALUE]; exists {
 		opts.AttributeValue = attributeValue
 	}
-	if createdAt, exists := attributeMap["created_at"]; exists {
-		opts.CreatedAt = carbon.Parse(createdAt, carbon.UTC).ToStdTime()
+	if createdAt, exists := attributeMap[COLUMN_CREATED_AT]; exists {
+		opts.CreatedAt = carbon.Parse(createdAt, carbon.UTC).StdTime()
 	}
-	if updatedAt, exists := attributeMap["updated_at"]; exists {
-		opts.UpdatedAt = carbon.Parse(updatedAt, carbon.UTC).ToStdTime()
+	if updatedAt, exists := attributeMap[COLUMN_UPDATED_AT]; exists {
+		opts.UpdatedAt = carbon.Parse(updatedAt, carbon.UTC).StdTime()
 	}
 
 	return st.NewAttribute(opts)

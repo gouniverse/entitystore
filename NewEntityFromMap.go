@@ -4,20 +4,20 @@ import "github.com/dromara/carbon/v2"
 
 func (st *Store) NewEntityFromMap(entityMap map[string]string) Entity {
 	opts := NewEntityOptions{}
-	if id, exists := entityMap["id"]; exists {
+	if id, exists := entityMap[COLUMN_ID]; exists {
 		opts.ID = id
 	}
-	if entityType, exists := entityMap["entity_type"]; exists {
+	if entityType, exists := entityMap[COLUMN_ENTITY_TYPE]; exists {
 		opts.Type = entityType
 	}
-	if entityHandle, exists := entityMap["entity_handle"]; exists {
+	if entityHandle, exists := entityMap[COLUMN_ENTITY_HANDLE]; exists {
 		opts.Handle = entityHandle
 	}
-	if createdAt, exists := entityMap["created_at"]; exists {
-		opts.CreatedAt = carbon.Parse(createdAt, carbon.UTC).ToStdTime()
+	if createdAt, exists := entityMap[COLUMN_CREATED_AT]; exists {
+		opts.CreatedAt = carbon.Parse(createdAt, carbon.UTC).StdTime()
 	}
-	if updatedAt, exists := entityMap["updated_at"]; exists {
-		opts.UpdatedAt = carbon.Parse(updatedAt, carbon.UTC).ToStdTime()
+	if updatedAt, exists := entityMap[COLUMN_CREATED_AT]; exists {
+		opts.UpdatedAt = carbon.Parse(updatedAt, carbon.UTC).StdTime()
 	}
 
 	return st.NewEntity(opts)

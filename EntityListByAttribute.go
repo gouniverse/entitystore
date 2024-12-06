@@ -11,10 +11,10 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	var entityIDs []string
 
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).
-		LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + ".entity_id": goqu.I(st.entityTableName + ".id")})).
-		Where(goqu.C("entity_type").Eq(entityType)).
-		Where(goqu.And(goqu.C("attribute_key").Eq(attributeKey), goqu.C("attribute_value").Eq(attributeValue))).
-		Select("entity_id")
+		LeftJoin(goqu.I(st.entityTableName), goqu.On(goqu.Ex{st.attributeTableName + "." + COLUMN_ENTITY_ID: goqu.I(st.entityTableName + "." + COLUMN_ID)})).
+		Where(goqu.C(COLUMN_ENTITY_TYPE).Eq(entityType)).
+		Where(goqu.And(goqu.C(COLUMN_ATTRIBUTE_KEY).Eq(attributeKey), goqu.C(COLUMN_ATTRIBUTE_VALUE).Eq(attributeValue))).
+		Select(COLUMN_ENTITY_ID)
 
 	sqlStr, _, err := q.ToSQL()
 
@@ -51,6 +51,6 @@ func (st *Store) EntityListByAttribute(entityType string, attributeKey string, a
 	return st.EntityList(EntityQueryOptions{
 		EntityType: entityType,
 		IDs:        entityIDs,
-		SortBy:     "id",
+		SortBy:     COLUMN_ID,
 	})
 }

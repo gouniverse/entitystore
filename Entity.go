@@ -17,11 +17,11 @@ type Entity struct {
 
 func (e *Entity) ToMap() map[string]any {
 	entry := map[string]any{}
-	entry["id"] = e.ID()
-	entry["entity_type"] = e.Type()
-	entry["entity_handle"] = e.Handle()
-	entry["created_at"] = e.CreatedAt()
-	entry["updated_at"] = e.UpdatedAt()
+	entry[COLUMN_ID] = e.ID()
+	entry[COLUMN_ENTITY_TYPE] = e.Type()
+	entry[COLUMN_ENTITY_HANDLE] = e.Handle()
+	entry[COLUMN_CREATED_AT] = e.CreatedAt()
+	entry[COLUMN_UPDATED_AT] = e.UpdatedAt()
 	return entry
 }
 

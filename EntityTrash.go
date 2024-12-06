@@ -104,7 +104,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		}
 	}
 
-	q1 := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).Where(goqu.C("entity_id").Eq(entityID)).Delete()
+	q1 := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).Where(goqu.C(COLUMN_ENTITY_ID).Eq(entityID)).Delete()
 	sqlStr1, _, _ := q1.ToSQL()
 
 	if _, err := st.database.Exec(sqlStr1); err != nil {
@@ -115,7 +115,7 @@ func (st *Store) EntityTrash(entityID string) (bool, error) {
 		return false, err
 	}
 
-	q2 := goqu.Dialect(st.dbDriverName).From(st.entityTableName).Where(goqu.C("id").Eq(entityID)).Delete()
+	q2 := goqu.Dialect(st.dbDriverName).From(st.entityTableName).Where(goqu.C(COLUMN_ID).Eq(entityID)).Delete()
 	sqlStr2, _, _ := q2.ToSQL()
 
 	if _, err := st.database.Exec(sqlStr2); err != nil {

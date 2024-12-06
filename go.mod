@@ -9,19 +9,19 @@ require (
 )
 
 require (
-	github.com/dromara/carbon/v2 v2.5.0
+	github.com/dromara/carbon/v2 v2.5.2
 	github.com/georgysavva/scany v1.2.2
 )
 
 require (
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gouniverse/base v0.0.5 // indirect
+	github.com/gouniverse/base v0.0.9 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 )
 
 require (
 	github.com/gouniverse/maputils v0.7.0 // indirect
-	github.com/gouniverse/sb v0.7.0
+	github.com/gouniverse/sb v0.8.0
 	github.com/samber/lo v1.47.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 )

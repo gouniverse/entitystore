@@ -24,14 +24,14 @@ func (st *Store) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDatas
 	}
 
 	if len(options.IDs) > 0 {
-		q = q.Where(goqu.C("id").In(options.IDs))
+		q = q.Where(goqu.C(COLUMN_ID).In(options.IDs))
 	}
 
 	if options.ID != "" {
-		q = q.Where(goqu.C("id").Eq(options.ID))
+		q = q.Where(goqu.C(COLUMN_ID).Eq(options.ID))
 	}
 
-	sortByColumn := "id"
+	sortByColumn := COLUMN_ID
 	sortOrder := "asc"
 
 	if options.SortOrder != "" {
@@ -49,16 +49,16 @@ func (st *Store) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDatas
 	}
 
 	if options.EntityID != "" {
-		q = q.Where(goqu.C("entity_id").Eq(options.EntityID))
+		q = q.Where(goqu.C(COLUMN_ENTITY_ID).Eq(options.EntityID))
 	}
 
 	if options.EntityType != "" && options.EntityHandle != "" {
-		q = q.Where(goqu.C("entity_type").Eq(options.EntityType))
-		q = q.Where(goqu.C("entity_handle").Eq(options.EntityHandle))
+		q = q.Where(goqu.C(COLUMN_ENTITY_TYPE).Eq(options.EntityType))
+		q = q.Where(goqu.C(COLUMN_ENTITY_HANDLE).Eq(options.EntityHandle))
 	}
 
 	if options.AttributeKey != "" {
-		q = q.Where(goqu.C("attribute_key").Eq(options.AttributeKey))
+		q = q.Where(goqu.C(COLUMN_ATTRIBUTE_KEY).Eq(options.AttributeKey))
 	}
 
 	q = q.Offset(uint(options.Offset))

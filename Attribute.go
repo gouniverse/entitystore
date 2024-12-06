@@ -18,12 +18,12 @@ type Attribute struct {
 
 func (a *Attribute) ToMap() map[string]any {
 	entry := map[string]any{}
-	entry["id"] = a.ID()
-	entry["entity_id"] = a.EntityID()
-	entry["attribute_key"] = a.AttributeKey()
-	entry["attribute_value"] = a.AttributeValue()
-	entry["created_at"] = a.CreatedAt()
-	entry["updated_at"] = a.UpdatedAt()
+	entry[COLUMN_ID] = a.ID()
+	entry[COLUMN_ENTITY_ID] = a.EntityID()
+	entry[COLUMN_ATTRIBUTE_KEY] = a.AttributeKey()
+	entry[COLUMN_ATTRIBUTE_VALUE] = a.AttributeValue()
+	entry[COLUMN_CREATED_AT] = a.CreatedAt()
+	entry[COLUMN_UPDATED_AT] = a.UpdatedAt()
 	return entry
 }
 
