@@ -7,7 +7,7 @@ import (
 )
 
 // EntityListByAttribute finds an entity by attribute
-func (st *Store) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) (entityList []Entity, err error) {
+func (st *storeImplementation) EntityListByAttribute(entityType string, attributeKey string, attributeValue string) (entityList []Entity, err error) {
 	var entityIDs []string
 
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName).

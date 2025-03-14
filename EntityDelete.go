@@ -8,7 +8,7 @@ import (
 )
 
 // EntityDelete deletes an entity and all attributes
-func (st *Store) EntityDelete(entityID string) (bool, error) {
+func (st *storeImplementation) EntityDelete(entityID string) (bool, error) {
 	if entityID == "" {
 		if st.GetDebug() {
 			log.Println("in EntityDelete entity ID cannot be empty")

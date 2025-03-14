@@ -3,7 +3,7 @@ package entitystore
 import "errors"
 
 // EntityFindByHandle finds an entity by handle
-func (st *Store) EntityFindByHandle(entityType string, entityHandle string) (*Entity, error) {
+func (st *storeImplementation) EntityFindByHandle(entityType string, entityHandle string) (*Entity, error) {
 	if entityType == "" {
 		return nil, errors.New("entity type cannot be empty")
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 // EntityCreate creates a new entity
-func (st *Store) EntityCreate(entity *Entity) error {
+func (st *storeImplementation) EntityCreate(entity *Entity) error {
 	if entity == nil {
 		return errors.New("entity cannot be nil")
 	}

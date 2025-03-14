@@ -16,7 +16,7 @@ type AttributeQueryOptions struct {
 	CountOnly    bool
 }
 
-func (st *Store) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDataset {
+func (st *storeImplementation) AttributeQuery(options AttributeQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.attributeTableName)
 
 	if options.EntityType != "" && options.EntityHandle != "" {

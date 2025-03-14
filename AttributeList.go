@@ -5,7 +5,7 @@ import (
 )
 
 // AttributeList lists attributes
-func (st *Store) AttributeList(options AttributeQueryOptions) (attributeList []Attribute, err error) {
+func (st *storeImplementation) AttributeList(options AttributeQueryOptions) (attributeList []Attribute, err error) {
 	q := st.AttributeQuery(options)
 
 	sqlStr, _, errSql := q.ToSQL()

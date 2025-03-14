@@ -10,7 +10,7 @@ import (
 )
 
 // AttributeCreate creates a new attribute
-func (st *Store) AttributeCreate(attr *Attribute) error {
+func (st *storeImplementation) AttributeCreate(attr *Attribute) error {
 	if attr == nil {
 		return errors.New("attribute is required")
 	}

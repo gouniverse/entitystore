@@ -15,7 +15,7 @@ type EntityQueryOptions struct {
 	CountOnly    bool
 }
 
-func (st *Store) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
+func (st *storeImplementation) EntityQuery(options EntityQueryOptions) *goqu.SelectDataset {
 	q := goqu.Dialect(st.dbDriverName).From(st.entityTableName)
 
 	if len(options.IDs) > 0 {

@@ -5,7 +5,7 @@ import (
 )
 
 // EntityList lists entities
-func (st *Store) EntityList(options EntityQueryOptions) (entityList []Entity, err error) {
+func (st *storeImplementation) EntityList(options EntityQueryOptions) (entityList []Entity, err error) {
 	q := st.EntityQuery(options)
 
 	sqlStr, _, errSql := q.ToSQL()

@@ -9,7 +9,7 @@ import (
 )
 
 // EntityTrash moves an entity and all attributes to the trash bin
-func (st *Store) EntityTrash(entityID string) (bool, error) {
+func (st *storeImplementation) EntityTrash(entityID string) (bool, error) {
 	if entityID == "" {
 		return false, errors.New("entity ID cannot be empty")
 	}

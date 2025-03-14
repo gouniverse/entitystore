@@ -3,7 +3,7 @@ package entitystore
 import "errors"
 
 // AttributeFind finds an entity by ID
-func (st *Store) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
+func (st *storeImplementation) AttributeFind(entityID string, attributeKey string) (*Attribute, error) {
 	if entityID == "" {
 		return nil, errors.New("entity id cannot be empty")
 	}

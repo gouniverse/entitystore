@@ -7,8 +7,8 @@ import (
 	"github.com/gouniverse/sb"
 )
 
-// Store defines an entity store
-type Store struct {
+// storeImplementation implements StoreInterface
+type storeImplementation struct {
 	entityTableName         string
 	attributeTableName      string
 	entityTrashTableName    string
@@ -21,10 +21,10 @@ type Store struct {
 }
 
 // StoreOption options for the vault store
-type StoreOption func(*Store)
+type StoreOption func(*storeImplementation)
 
 // AutoMigrate auto migrate
-func (st *Store) AutoMigrate() error {
+func (st *storeImplementation) AutoMigrate() error {
 	sqlArray, err := st.SqlCreateTable()
 
 	if err != nil {
@@ -42,35 +42,35 @@ func (st *Store) AutoMigrate() error {
 }
 
 // EnableDebug - enables the debug option
-func (st *Store) EnableDebug(debug bool) {
+func (st *storeImplementation) EnableDebug(debug bool) {
 	st.debugEnabled = debug
 }
 
-func (st *Store) GetAttributeTableName() string {
+func (st *storeImplementation) GetAttributeTableName() string {
 	return st.attributeTableName
 }
 
-func (st *Store) GetAttributeTrashTableName() string {
+func (st *storeImplementation) GetAttributeTrashTableName() string {
 	return st.attributeTrashTableName
 }
 
-func (st *Store) GetDB() *sql.DB {
+func (st *storeImplementation) GetDB() *sql.DB {
 	return st.database.DB()
 }
 
-func (st *Store) GetDebug() bool {
+func (st *storeImplementation) GetDebug() bool {
 	return st.debugEnabled
 }
 
-func (st *Store) GetEntityTableName() string {
+func (st *storeImplementation) GetEntityTableName() string {
 	return st.entityTableName
 }
 
-func (st *Store) GetEntityTrashTableName() string {
+func (st *storeImplementation) GetEntityTrashTableName() string {
 	return st.entityTrashTableName
 }
 
-func (st *Store) SqlCreateTable() ([]string, error) {
+func (st *storeImplementation) SqlCreateTable() ([]string, error) {
 
 	sqlMysql1 := `
 	CREATE TABLE IF NOT EXISTS ` + st.entityTableName + ` (

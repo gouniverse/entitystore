@@ -5,7 +5,7 @@ import (
 )
 
 // AttributesSet upserts an entity attribute
-func (st *Store) AttributesSet(entityID string, attributes map[string]string) error {
+func (st *storeImplementation) AttributesSet(entityID string, attributes map[string]string) error {
 	// err := st.database.BeginTransaction()
 
 	// if err != nil {

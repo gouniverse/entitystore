@@ -13,7 +13,7 @@ type Attribute struct {
 	attributeValue string
 	createdAt      time.Time
 	updatedAt      time.Time
-	st             *Store
+	st             *storeImplementation
 }
 
 func (a *Attribute) ToMap() map[string]any {

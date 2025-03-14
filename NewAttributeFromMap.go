@@ -2,7 +2,7 @@ package entitystore
 
 import "github.com/dromara/carbon/v2"
 
-func (st *Store) NewAttributeFromMap(attributeMap map[string]string) Attribute {
+func (st *storeImplementation) NewAttributeFromMap(attributeMap map[string]string) Attribute {
 	opts := NewAttributeOptions{}
 
 	if id, exists := attributeMap[COLUMN_ID]; exists {

@@ -10,7 +10,7 @@ type NewEntityOptions struct {
 	UpdatedAt time.Time
 }
 
-func (st *Store) NewEntity(opts NewEntityOptions) Entity {
+func (st *storeImplementation) NewEntity(opts NewEntityOptions) Entity {
 	entity := Entity{}
 	entity.SetID(opts.ID)
 	entity.SetType(opts.Type)

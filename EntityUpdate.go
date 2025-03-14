@@ -8,7 +8,7 @@ import (
 )
 
 // EntityUpdate updates an entity
-func (st *Store) EntityUpdate(ent Entity) error {
+func (st *storeImplementation) EntityUpdate(ent Entity) error {
 	ent.SetUpdatedAt(time.Now())
 
 	q := goqu.Dialect(st.dbDriverName).

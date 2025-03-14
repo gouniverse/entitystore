@@ -11,7 +11,7 @@ import (
 
 // EntityCount counts the entities of a specified type
 // EntityCount counts entities
-func (st *Store) EntityCount(options EntityQueryOptions) (int64, error) {
+func (st *storeImplementation) EntityCount(options EntityQueryOptions) (int64, error) {
 	options.CountOnly = true
 
 	q := st.EntityQuery(options)

@@ -6,7 +6,7 @@ import "log"
 // to create an entity by providing only the type as string
 // and the attributes as map
 // NB. The IDs will be auto-assigned
-func (st *Store) EntityCreateWithTypeAndAttributes(entityType string, attributes map[string]string) (*Entity, error) {
+func (st *storeImplementation) EntityCreateWithTypeAndAttributes(entityType string, attributes map[string]string) (*Entity, error) {
 	err := st.database.BeginTransaction()
 
 	if err != nil {

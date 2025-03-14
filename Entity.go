@@ -12,7 +12,7 @@ type Entity struct {
 	entityHandle string
 	createdAt    time.Time
 	updatedAt    time.Time
-	st           *Store
+	st           *storeImplementation
 }
 
 func (e *Entity) ToMap() map[string]any {

@@ -9,7 +9,7 @@ import (
 // AttributeCreateWithKeyAndValue shortcut to create a new attribute
 // by providing only the key and value
 // NN. The ID will be auto-assigned
-func (st *Store) AttributeCreateWithKeyAndValue(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
+func (st *storeImplementation) AttributeCreateWithKeyAndValue(entityID string, attributeKey string, attributeValue string) (*Attribute, error) {
 	newAttribute := st.NewAttribute(NewAttributeOptions{
 		ID:             uid.HumanUid(),
 		EntityID:       entityID,

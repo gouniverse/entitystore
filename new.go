@@ -45,7 +45,7 @@ type NewStoreOptions struct {
 	DebugEnabled            bool
 }
 
-func NewStore(opts NewStoreOptions) (*Store, error) {
+func NewStore(opts NewStoreOptions) (StoreInterface, error) {
 	if opts.DB == nil && opts.Database == nil {
 		return nil, errors.New("entity store: DB or Database is required")
 	}
@@ -63,7 +63,7 @@ func NewStore(opts NewStoreOptions) (*Store, error) {
 		opts.Database = sb.NewDatabase(opts.DB, opts.DbDriverName)
 	}
 
-	store := &Store{
+	store := &storeImplementation{
 		entityTableName:         opts.EntityTableName,
 		attributeTableName:      opts.AttributeTableName,
 		entityTrashTableName:    opts.EntityTrashTableName,

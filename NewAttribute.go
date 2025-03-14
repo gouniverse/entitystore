@@ -11,7 +11,7 @@ type NewAttributeOptions struct {
 	UpdatedAt      time.Time
 }
 
-func (st *Store) NewAttribute(opts NewAttributeOptions) Attribute {
+func (st *storeImplementation) NewAttribute(opts NewAttributeOptions) Attribute {
 	attribute := Attribute{}
 	attribute.SetID(opts.ID)
 	attribute.SetEntityID(opts.EntityID)

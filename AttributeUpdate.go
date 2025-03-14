@@ -8,7 +8,7 @@ import (
 )
 
 // AttributeUpdate updates an attribute
-func (st *Store) AttributeUpdate(attr Attribute) error {
+func (st *storeImplementation) AttributeUpdate(attr Attribute) error {
 	attr.SetUpdatedAt(time.Now())
 
 	q := goqu.Dialect(st.dbDriverName).Update(st.attributeTableName)

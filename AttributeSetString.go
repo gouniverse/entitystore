@@ -1,7 +1,7 @@
 package entitystore
 
 // AttributeSetString creates a new entity
-func (st *Store) AttributeSetString(entityID string, attributeKey string, attributeValue string) error {
+func (st *storeImplementation) AttributeSetString(entityID string, attributeKey string, attributeValue string) error {
 	attr, err := st.AttributeFind(entityID, attributeKey)
 
 	if err != nil {
