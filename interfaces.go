@@ -23,6 +23,7 @@ type StoreInterface interface {
 	AttributeSetString(entityID string, attributeKey string, attributeValue string) error
 	// AttributeTrash(attr *Attribute) error
 
+	EntityAttributeList(entityID string) ([]Attribute, error)
 	EntityCount(options EntityQueryOptions) (int64, error)
 	EntityCreate(entity *Entity) error
 	EntityCreateWithType(entityType string) (*Entity, error)
