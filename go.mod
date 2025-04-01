@@ -5,11 +5,11 @@ go 1.23.3
 require (
 	github.com/doug-martin/goqu/v9 v9.19.0
 	github.com/gouniverse/uid v1.5.0
-	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/mattn/go-sqlite3 v1.14.25
 )
 
 require (
-	github.com/dromara/carbon/v2 v2.5.4
+	github.com/dromara/carbon/v2 v2.6.1
 	github.com/georgysavva/scany v1.2.3
 )
 
